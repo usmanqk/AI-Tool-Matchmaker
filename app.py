@@ -1,86 +1,177 @@
-import streamlit as st
 import pandas as pd
+import streamlit as st
 
-tools = pd.read_excel("ai_tools.xlsx")
+st.set_page_config(page_title="Discover - Find the right AI tool", page_icon="🔍")
 
-# Set up the application
-st.title("AI Tool Matchmaker")
+tools = pd.read_csv("ai_tools.csv")
 
-st.write("Find the right AI tools for your small business.")
+st.title("Discover")
+st.write("Find the right AI tool for your small business, in minutes.")
+st.write(
+    "Hi, I am Vee, your guide. I do not guess. "
+    "Every tool below is real, with a real price checked on Nov 6, 2026. "
+    "Answer 4 questions and I will show you the top 3, with the reason why."
+)
 
-# First questionnaire question
-# Ask what type of business the user operates
+# --- Quiz: 4 questions, no free text ---
+st.header("Find my tools")
+
 business_type = st.selectbox(
-    "What type of business do you operate?",
-    [
-        "Restaurant / Cafe",
-        "Retail Store",
-        "Landscaping",
-        "HVAC / Home Services",
-        "Professional Services",
-        "Other"
-    ]
+    "What type of business are you?",
+    ["Restaurant / Cafe", "Coffee Shop"],
 )
-st.write("You selected:", business_type)
-
-challenge = st.selectbox(
-    "What is your biggest business challenge?",
+job = st.selectbox(
+    "What is your top job?",
     [
-        "Marketing and Advertising",
-        "Customer Service",
-        "Employee Scheduling",
-        "Accounting and Bookkeeping",
-        "Inventory Management",
-        "Administrative Tasks"
-    ]
+        "Reviews",
+        "Customer Questions",
+        "Social media",
+        "Marketing",
+        "Bookings",
+        "Daily operations",
+        "Scheduling",
+        "Accounting",
+    ],
 )
-
-st.write("You selected:", challenge)
-
-#Asking for the users Budget
-budget = st.selectbox(
-    "What is your budget for AI tools?",
-    [
-        "Under $100/month",
-        "$100-$500/month",
-        "$500-$1,000/month",
-        "Over $1,000/month"
-    ]
+budget_label = st.selectbox(
+    "What is your budget?",
+    ["Free only", "Under $20 a month", "Under $50 a month", "Under $100 a month", "Over $100 a month"],
+)
+comfort = st.selectbox(
+    "How comfortable are you with new apps?",
+    ["Keep it simple", "I can learn a bit"],
 )
 
-st.write("You selected:", budget)
+BUDGET_CAP = {
+    "Free only": 0,
+    "Under $20 a month": 20,
+    "Under $50 a month": 50,
+    "Under $100 a month": 100,
+    "Over $100 a month": 100000,
+}
 
 
-#Number of employees  
-st.write("How many employees do you have?")
-num_employees = st.slider("Select the number of employees:", 1, 100, 5)
-st.write("You selected:", num_employees)
+def price_fits(row, cap):
+    """True if the tool can be started within the budget."""
+    if pd.notna(row["free_price"]) and row["free_price"] == 0:
+        return True
+    if pd.isna(row["monthly_cost"]):
+        return False
+    return row["monthly_cost"] <= cap
 
-st.write("How comfortable are you with technology?")
-tech_comfort = st.slider("Select your technology comfort level:", 1, 10, 1)
-st.write("You selected:", tech_comfort)
 
-if st.button("Find My AI Tools"):
-    st.write(
-        f"Currently looking for the best AI tools for your "
-        f"{business_type} business based on your responses. "
-        f"Please wait while we analyze your inputs and provide recommendations."
-    )
+def score_tools(df, job, cap, comfort):
+    scored = []
+    for _, row in df.iterrows():
+        score = 0
+        reasons = []
+        if row["challenge"] != job:
+            continue
+        score += 3
+        reasons.append(f"Matches your job: {job}")
+        if price_fits(row, cap):
+            score += 2
+            if pd.notna(row["free_price"]) and row["free_price"] == 0:
+                reasons.append("Costs $0 to start")
+            else:
+                reasons.append(f"Costs ${row['monthly_cost']:.0f}/mo, fits your budget")
+        if row["effort"] == "Easy":
+            score += 1
+            reasons.append("Setup is easy")
+        elif row["effort"] == "Medium" and comfort == "I can learn a bit":
+            score += 1
+            reasons.append("Setup is medium, and you can learn a bit")
+        scored.append((score, row, reasons))
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return scored
 
-#The code below filters the tolls based on user responses and displays the results
 
-    matches = tools[
-        (tools['challenge'] == challenge) &
-        (tools['business_type'] == business_type)
-    ]
-
-    st.subheader("Your AI Tool Recommendations")
-
-    if matches.empty:
-        st.warning("No matching tools found. Try another selection.")
+if st.button("Find my tools"):
+    cap = BUDGET_CAP[budget_label]
+    pool = tools[tools["business_type"].str.contains(business_type, na=False)]
+    ranked = score_tools(pool, job, cap, comfort)
+    st.subheader("Your top 3 tools")
+    if not ranked:
+        st.warning("No matching tools found. Try another job or budget.")
     else:
-        for index, tool in matches.iterrows():
-            st.write(f"### {tool['tool_name']}")
-            st.write(f"Monthly Cost: ${tool['monthly_cost']}")
-            st.write(f"Pros: {tool['pros']}")
-            st.write(f"Cons: {tool['cons']}")
+        for score, tool, reasons in ranked[:3]:
+            st.write(f"### {tool['tool_name']}  —  score {score}/6")
+            st.write(f"Price: {tool['price_note']}")
+            st.write(f"Setup: {tool['effort']}")
+            st.write(f"Why: {'; '.join(reasons)}")
+            st.write(f"Good: {tool['pros']}")
+            st.write(f"Watch out: {tool['cons']}")
+            st.write(f"Website: {tool['website']}")
+            st.write(f"Price checked: {tool['checked_date']}, source: {tool['source']}")
+        top = ranked[0][1]
+        st.subheader(f"Your first week with {top['tool_name']}")
+        st.write("1. Open the website above and create the free account.")
+        st.write("2. Add your business name, address, and hours.")
+        st.write("3. Do one real job with it this week, for example answer one review or post one menu.")
+        st.write("4. Check after 7 days: did it save you time? If yes, keep it. If no, try the next tool.")
+
+# --- Catalog ---
+st.header("Catalog: all 12 tools")
+st.write("Prices checked Nov 6, 2026. Check the maker site again before you pay.")
+job_filter = st.selectbox("Filter by job", ["All"] + sorted(tools["challenge"].unique().tolist()))
+shown = tools if job_filter == "All" else tools[tools["challenge"] == job_filter]
+for _, tool in shown.iterrows():
+    st.write(f"### {tool['tool_name']}")
+    st.write(f"Job: {tool['challenge']}  |  Business: {tool['business_type']}")
+    st.write(f"Price: {tool['price_note']}  |  Setup: {tool['effort']}")
+    st.write(f"Good: {tool['pros']}  |  Watch out: {tool['cons']}")
+    st.write(f"Website: {tool['website']}  |  Source: {tool['source']}")
+
+# --- Compare ---
+st.header("Compare up to 3 tools")
+picked = st.multiselect(
+    "Pick tools to compare",
+    tools["tool_name"].tolist(),
+    max_selections=3,
+)
+if picked:
+    compare = tools[tools["tool_name"].isin(picked)][
+        ["tool_name", "challenge", "price_note", "effort", "pros", "cons"]
+    ]
+    st.dataframe(compare, use_container_width=True)
+
+# --- ROI calculator: Will's idea, 4 sliders ---
+st.header("Is it worth it? ROI calculator")
+st.write("4 sliders. No AI, just your numbers.")
+hours = st.slider("Hours per week spent on this task", 0, 40, 5)
+value = st.slider("Value of your time, $ per hour", 10, 100, 25)
+reduction = st.slider("Assumed time reduction, %", 0, 80, 30)
+tool_price = st.slider("Price of the AI tool, $ per month", 0, 500, 0)
+money_spent = hours * value * 4.33
+saved = money_spent * reduction / 100
+net = saved - tool_price
+st.write(f"You spend about ${money_spent:,.0f} a month of your time on this task.")
+st.write(f"At {reduction}% less time, you save about ${saved:,.0f} a month.")
+st.write(f"Estimated net monthly benefit: ${net:,.0f} after the tool price.")
+
+# --- Dumb chatbot helper ---
+with st.expander("Find my tools in chat — Vee, the guide"):
+    st.write(
+        "Vee here. I run the same quiz, in chat form, using the same 12 tools. "
+        "I never invent a tool or a price."
+    )
+    chat_job = st.selectbox(
+        "What is your top job?",
+        ["Reviews", "Customer Questions", "Social media", "Marketing", "Bookings", "Daily operations", "Scheduling", "Accounting"],
+        key="chat_job",
+    )
+    chat_budget = st.selectbox(
+        "What is your budget?",
+        ["Free only", "Under $20 a month", "Under $50 a month", "Under $100 a month", "Over $100 a month"],
+        key="chat_budget",
+    )
+    if st.button("Ask Vee", key="ask_vee"):
+        cap = BUDGET_CAP[chat_budget]
+        ranked = score_tools(tools, chat_job, cap, comfort)
+        if ranked:
+            for score, tool, reasons in ranked[:3]:
+                st.write(f"{tool['tool_name']} — score {score}/6 — {tool['price_note']} — {'; '.join(reasons)}")
+        else:
+            st.write("I found no tool for that job and budget. Try a higher budget or another job.")
+
+st.write("Discover, by The Vipers. Prices checked Nov 6, 2026. Prototype link can improve after Nov 8.")
