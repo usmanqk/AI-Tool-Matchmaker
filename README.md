@@ -1,8 +1,8 @@
-# Discover — AI Tool Matchmaker
+# VipervisionAI — AI Tool Matchmaker
 
 Find the right AI tool for your small business, in minutes.
 
-Discover is a searchable catalog of 12 real AI tools for restaurants and coffee shops, with a dumb rule based recommender, not an AI picker. Answer 4 questions and get your top 3, with the reason why.
+VipervisionAI is a searchable catalog of 12 real AI tools for restaurants and coffee shops, with a dumb rule based recommender, not an AI picker. Answer 4 questions and get your top 3, with the reason why.
 
 Scoring, visible to the user: +3 if the tool does the job they picked, +2 if the price fits their budget, +1 if the setup effort fits their comfort.
 

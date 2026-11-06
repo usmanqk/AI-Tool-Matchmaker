@@ -1,11 +1,11 @@
 import pandas as pd
 import streamlit as st
 
-st.set_page_config(page_title="Discover - Find the right AI tool", page_icon="🔍")
+st.set_page_config(page_title="VipervisionAI - Find the right AI tool", page_icon="🔍")
 
 tools = pd.read_csv("ai_tools.csv")
 
-st.title("Discover")
+st.title("VipervisionAI")
 st.write("Find the right AI tool for your small business, in minutes.")
 st.write(
     "Hi, I am Vee, your guide. I do not guess. "
@@ -174,4 +174,4 @@ with st.expander("Find my tools in chat — Vee, the guide"):
         else:
             st.write("I found no tool for that job and budget. Try a higher budget or another job.")
 
-st.write("Discover, by The Vipers. Prices checked Nov 6, 2026. Prototype link can improve after Nov 8.")
+st.write("VipervisionAI, by The Vipers. Prices checked Nov 6, 2026. Prototype link can improve after Nov 8.")
