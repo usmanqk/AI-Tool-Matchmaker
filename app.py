@@ -28,8 +28,16 @@ st.markdown(
 # Vee greets the owner in a chat bubble, then 3 job cards and a stats
 # strip. Every number here is real, from ai_tools.csv: 12 tools, 8 jobs,
 # prices checked Nov 6, 2026. No invented totals.
-with st.chat_message("assistant"):
-    st.write("Hi, I am Vee! Tell me your top business goal, and I will find 3 AI tools for you.")
+# Vee as the mascot, like the Grok bot and Muse avatars in chat: her picture
+# is the face of the greeting, Vee on the left, her speech bubble on the
+# right, the same layout as the Vee image. vee.png is a tight crop of the
+# Vee image, mascot only, no Discover text, no cards, no fake stats.
+vee_col, greet_col = st.columns([1, 2])
+with vee_col:
+    st.image("vee.png", caption="Vee, your guide")
+with greet_col:
+    with st.chat_message("assistant", avatar="vee.png"):
+        st.write("Hi, I am Vee! Tell me your top business goal, and I will find 3 AI tools for you.")
 st.write(
     "I am Vee, your guide. I do not guess. "
     "Every tool below is real, with a real price checked on Nov 6, 2026. "
