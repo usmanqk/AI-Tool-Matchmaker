@@ -824,6 +824,32 @@ def home_page():
             "before making a decision."
         )
 
+    # Divider before Free help
+    st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
+
+    # Free help beyond software, laid out like the explore section
+    with st.container(key="explore_section_help"):
+        with st.container(key="explore_heading_help"):
+            st.markdown(
+                '<div class="explore-pill">Free for small business owners</div>'
+                '<div class="explore-title">Free help <span class="vee-gradient">beyond</span> software</div>'
+                '<p class="explore-subtitle">These free resources can help a small business owner beyond '
+                'the tools above. VipervisionAI does not run them and does not receive anything from them.</p>',
+                unsafe_allow_html=True,
+            )
+        help_columns = st.columns(3)
+        for column, card in zip(help_columns, FREE_HELP_CARDS):
+            with column:
+                with st.container(key=f"explore_card_{card['key']}"):
+                    st.markdown(
+                        f'<div class="card-top"><span class="card-category">{card["category"]}</span>'
+                        f'<span class="card-badge">Free</span></div>'
+                        f'<div class="card-title">{card["title"]}</div>'
+                        f'<p class="card-description">{card["description"]}</p>',
+                        unsafe_allow_html=True,
+                    )
+                    st.link_button(card["button"] + " \u2192", card["url"], use_container_width=True)
+
     # Divider before the About sections
     st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
