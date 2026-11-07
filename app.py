@@ -129,9 +129,15 @@ def load_tools(path):
         raise ValueError("Every catalog tool must have one unique name.")
     return data
 
+DESIGN_MODE = False
 try:
     tools = load_tools(DATA_FILE)
-except (FileNotFoundError, pd.errors.ParserError, ValueError) as error:
+except FileNotFoundError:
+    # DESIGN PRACTICE ONLY: run quietly with an empty catalog when ai_tools.csv is missing.
+    # Change this back to st.stop() before sharing with the team.
+    DESIGN_MODE = True
+    tools = pd.DataFrame(columns=REQUIRED_COLUMNS)
+except (pd.errors.ParserError, ValueError) as error:
     st.error("The tool catalog could not be loaded. Check ai_tools.csv and try again.")
     st.caption(str(error))
     st.stop()
@@ -140,7 +146,7 @@ newest_check = pd.to_datetime(tools["checked_date"], errors="coerce").max()
 if pd.notna(newest_check):
     PRICE_CHECK_DATE = date_label(newest_check)
 
-if len(tools) != EXPECTED_TOOL_COUNT:
+if not DESIGN_MODE and len(tools) != EXPECTED_TOOL_COUNT:
     st.warning(
         f"The catalog currently contains {len(tools)} tools. "
         f"The contest demonstration expects {EXPECTED_TOOL_COUNT}."
@@ -542,12 +548,12 @@ st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 with st.container(key="explore_section"):
     # Heading in its own box
     with st.container(key="explore_heading"):
-        st.subheader("What Vee can help you explore")
+        st.subheader("Vee can help you explore")
 
     card1, card2, card3 = st.columns(3)
     with card1:
         with st.container(key="explore_card_customer"):
-            st.markdown("#### Customer questions")
+            st.markdown("#### Customer Questions")
             st.write("Review replies and customer conversations.")
             st.caption("Catalog examples include Google Business Profile and Podium.")
             if st.button("Explore customer questions", key="explore_customer", use_container_width=True):
@@ -565,7 +571,7 @@ with st.container(key="explore_section"):
             st.metric("Jobs covered", tools["challenge"].nunique())
     with card3:
         with st.container(key="explore_card_bookings"):
-            st.markdown("#### Bookings and operations")
+            st.markdown("#### Bookings and Operations")
             st.write("Online bookings, scheduling, and daily tasks.")
             st.caption("Catalog examples include Square Appointments and Homebase.")
             if st.button("Explore bookings", key="explore_bookings", use_container_width=True):
@@ -577,53 +583,51 @@ with st.container(key="explore_section"):
 st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
 # Recommendation questionnaire
-# Brown box around the whole Find my tools section
-with st.container(key="find_tools_section"):
-    st.header("Find my tools")
-    st.write(
-        "Choose the answers that best describe your business. "
-        "The score is a rule based fit guide, not a customer rating."
-    )
+st.header("Find my tools")
+st.write(
+    "Choose the answers that best describe your business. "
+    "The score is a rule based fit guide, not a customer rating."
+)
 
-    with st.form("recommendation_form"):
-        with st.container(key="question_card_business"):
-            st.write("**1. What type of business do you operate?**")
-            business_type = st.selectbox(
-                "Business type",
-                BUSINESS_TYPES,
-                label_visibility="collapsed",
-            )
-        with st.container(key="question_card_challenge"):
-            st.write("**2. What is your biggest business challenge?**")
-            job = st.selectbox("Business challenge", JOBS, key="quiz_job_select", label_visibility="collapsed")
-        with st.container(key="question_card_budget"):
-            st.write("**3. What is your budget for AI tools?**")
-            budget_label = st.selectbox(
-                "Monthly budget",
-                BUDGET_OPTIONS,
-                label_visibility="collapsed",
-            )
-        with st.container(key="question_card_employees"):
-            st.write("**4. How many employees do you have?**")
-            employees = st.slider(
-                "Number of employees",
-                1,
-                50,
-                1,
-                label_visibility="collapsed",
-            )
-        with st.container(key="question_card_tech"):
-            st.write("**5. How comfortable are you with technology?**")
-            comfort = st.selectbox(
-                "Technology comfort",
-                COMFORT_OPTIONS,
-                label_visibility="collapsed",
-            )
-        systems = st.text_input(
-            "Optional: systems you already use, such as a point of sale or a spreadsheet",
-            help="This is added to your first week checklist. It does not change the score.",
+with st.form("recommendation_form"):
+    with st.container(key="question_card_business"):
+        st.write("**1. What type of business do you operate?**")
+        business_type = st.selectbox(
+            "Business type",
+            BUSINESS_TYPES,
+            label_visibility="collapsed",
         )
-        submitted = st.form_submit_button("Find my tools", type="primary")
+    with st.container(key="question_card_challenge"):
+        st.write("**2. What is your biggest business challenge?**")
+        job = st.selectbox("Business challenge", JOBS, key="quiz_job_select", label_visibility="collapsed")
+    with st.container(key="question_card_budget"):
+        st.write("**3. What is your budget for AI tools?**")
+        budget_label = st.selectbox(
+            "Monthly budget",
+            BUDGET_OPTIONS,
+            label_visibility="collapsed",
+        )
+    with st.container(key="question_card_employees"):
+        st.write("**4. How many employees do you have?**")
+        employees = st.slider(
+            "Number of employees",
+            1,
+            50,
+            1,
+            label_visibility="collapsed",
+        )
+    with st.container(key="question_card_tech"):
+        st.write("**5. How comfortable are you with technology?**")
+        comfort = st.selectbox(
+            "Technology comfort",
+            COMFORT_OPTIONS,
+            label_visibility="collapsed",
+        )
+    systems = st.text_input(
+        "Optional: systems you already use, such as a point of sale or a spreadsheet",
+        help="This is added to your first week checklist. It does not change the score.",
+    )
+    submitted = st.form_submit_button("Find my tools", type="primary")
 
 if submitted:
     st.session_state["recommendation_results"] = {
