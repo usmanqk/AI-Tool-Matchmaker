@@ -1,4 +1,4 @@
-/*Global color variables*/
+/*All of our colors live here so we can change them in one spot*/
 :root {
     --background-color: #0D191F;
     --navbar-color: #0A1410;
@@ -9,22 +9,18 @@
     --accent-color-neon-green: #39FF88;
     --accent-color-blue: #49B8D0;
     --accent-color-yellow: #D9A441;
-    --card-color-gray: #53635B;
-    --border-color-dark-green: #1F4D2E;
     --cream-color: #F5EFE0;
-    --cream-color-dark: #E6D8BC;
-    --border-color: #39FF88;
     --border-color-soft: #8FB7A0;
     --brown-color: #5C4033;
     --brown-color-dark: #3B2419;
 }
 
-/*Sets the background color of the whole website*/
+/*Background color for the whole site*/
 .stApp {
     background-color: var(--background-color);
 }
 
-/*Keeps section titles from hiding under the nav bar when a nav link jumps to them*/
+/*Gives section titles some room so the nav bar does not cover them when you click a link*/
 .stApp h1,
 .stApp h2,
 .stApp h3,
@@ -32,7 +28,7 @@
     scroll-margin-top: 100px;
 }
 
-/*Helps to contain the main part/title of the website */
+/*Helps to contain the main part/title of the website*/
 .top-text {
     border: 2px solid var(--accent-color-neon-green);
     border-radius: 10px;
@@ -44,14 +40,22 @@
     margin: 60px auto 40px auto;
 }
 
-/*VipervisionAI title with a wavy yellow line under the whole word*/
+/*Big VipervisionAI title*/
 [data-testid="stMarkdownContainer"] .top-text h1 {
     color: var(--accent-color-neon-green);
     font-size: 4rem;
-    text-decoration: underline wavy var(--accent-color-yellow);
-    text-decoration-thickness: 3px;
-    text-underline-offset: 14px;
+    text-decoration: none;
     padding-bottom: 20px;
+}
+
+/*Short gold line under the title*/
+[data-testid="stMarkdownContainer"] .top-text h1::after {
+    content: "";
+    display: block;
+    width: 80px;
+    height: 4px;
+    background-color: var(--accent-color-yellow);
+    margin: 12px auto 0 auto;
 }
 
 /*Navigation Bar that is at the top of the website*/
@@ -69,7 +73,7 @@
     border-bottom: 2px solid var(--accent-color-neon-green);
 }
 
-/*VipervisionAI name on the far left of the nav bar*/
+/*Our name on the left side of the nav bar*/
 .nav-logo {
     color: var(--accent-color-neon-green);
     background-color: transparent;
@@ -77,7 +81,7 @@
     font-weight: bold;
 }
 
-/*Groups the links together on the right side of the nav bar*/
+/*Keeps the nav links together on the right side*/
 .nav-links {
     display: flex;
     gap: 10px;
@@ -97,14 +101,14 @@
     color: var(--navbar-color);
 }
 
-/*Horizontal line between the header box and the questions*/
+/*The line we use to split up each section*/
 [data-testid="stMarkdownContainer"] hr.section-divider {
     border: none;
     border-top: 2px solid var(--border-color-soft);
     margin: 0 0 40px 0;
 }
 
-/*Cards that hold each question*/
+/*Each question gets its own card*/
 div[class*="st-key-question_card"] {
     background-color: var(--cream-color);
     border: 2px solid var(--accent-color-neon-green);
@@ -113,12 +117,12 @@ div[class*="st-key-question_card"] {
     margin-bottom: 20px;
 }
 
-/*Dark text inside the cards*/
+/*Dark text so it is easy to read on the cream cards*/
 div[class*="st-key-question_card"] p {
     color: var(--text-color-dark);
 }
 
-/*Question titles: centered, bold, and underlined*/
+/*Question titles are centered and underlined*/
 div[class*="st-key-question_card"] [data-testid="stMarkdownContainer"] p {
     text-align: center;
     font-size: 1.1rem;
@@ -127,19 +131,19 @@ div[class*="st-key-question_card"] [data-testid="stMarkdownContainer"] p {
     margin-bottom: 15px;
 }
 
-/*Dark dropdown boxes with a blue border*/
+/*Dropdowns are dark with a blue outline*/
 div[class*="st-key-question_card"] div[data-baseweb="select"] > div {
     background-color: var(--navbar-color);
     border: 2px solid var(--accent-color-blue);
     border-radius: 8px;
 }
 
-/*White text and arrow inside the dark dropdowns*/
+/*White text and arrow so you can see them in the dark dropdowns*/
 div[class*="st-key-question_card"] div[data-baseweb="select"] * {
     color: var(--text-color-white);
 }
 
-/*Buttons across the site*/
+/*Main button style for the whole site*/
 .stButton button,
 .stFormSubmitButton button,
 .stDownloadButton button,
@@ -161,7 +165,7 @@ div[class*="st-key-question_card"] div[data-baseweb="select"] * {
     color: var(--accent-color-neon-green);
 }
 
-/*Blue box with a green border around Vee's introduction*/
+/*Vee's speech box, blue with a green outline*/
 div[class*="st-key-vee_intro"] {
     background-color: var(--header-color);
     border: 2px solid var(--accent-color-neon-green);
@@ -174,7 +178,7 @@ div[class*="st-key-vee_intro"] {
     overflow: visible;
 }
 
-/*Speech bubble tail pointing left toward Vee (green outline)*/
+/*Little tail on the speech box that points at Vee (this is the green outline part)*/
 div[class*="st-key-vee_intro"]::before {
     content: "";
     position: absolute;
@@ -185,7 +189,7 @@ div[class*="st-key-vee_intro"]::before {
     border-color: transparent var(--accent-color-neon-green) transparent transparent;
 }
 
-/*Speech bubble tail fill so it matches the box color*/
+/*Fills in the tail with blue so it matches the box*/
 div[class*="st-key-vee_intro"]::after {
     content: "";
     position: absolute;
@@ -196,38 +200,38 @@ div[class*="st-key-vee_intro"]::after {
     border-color: transparent var(--header-color) transparent transparent;
 }
 
-/*White text inside Vee's box so it shows on the blue*/
+/*White text inside Vee's box*/
 div[class*="st-key-vee_intro"] p,
 div[class*="st-key-vee_intro"] li {
     color: var(--text-color-white);
 }
 
-/*Vee's "Hi, I am Vee!" chat bubble in gold*/
+/*Gold bubble for Vee saying hi*/
 div[class*="st-key-vee_intro"] [data-testid="stChatMessage"] {
     background-color: var(--accent-color-yellow);
     border-radius: 12px;
     padding: 12px 16px;
 }
 
-/*Dark text inside the gold bubble so it stays readable*/
+/*Dark text so you can read it on the gold*/
 div[class*="st-key-vee_intro"] [data-testid="stChatMessage"] p {
     color: var(--text-color-dark);
 }
 
-/*Gold sections for "Answer five questions" and "How it works"*/
+/*Gold bubbles for the intro sentence and How it works*/
 div[class*="st-key-vee_intro"] div[class*="st-key-vee_gold"] {
     background-color: var(--accent-color-yellow);
     border-radius: 12px;
     padding: 12px 16px;
 }
 
-/*Dark text inside the gold sections so it stays readable*/
+/*Dark text for those gold bubbles too*/
 div[class*="st-key-vee_intro"] div[class*="st-key-vee_gold"] p,
 div[class*="st-key-vee_intro"] div[class*="st-key-vee_gold"] li {
     color: var(--text-color-dark);
 }
 
-/*Start the five questions button inside Vee's box*/
+/*Start the five questions button in Vee's box*/
 div[class*="st-key-vee_intro"] .stLinkButton a,
 div[class*="st-key-vee_intro"] .stLinkButton a p {
     color: var(--text-color-dark);
@@ -237,7 +241,7 @@ div[class*="st-key-vee_intro"] .stLinkButton a {
     border: 2px solid var(--text-color-white);
 }
 
-/*Hover: same as the other buttons, dark background with neon green text*/
+/*When you hover it acts like the other buttons*/
 div[class*="st-key-vee_intro"] .stLinkButton a:hover {
     background-color: var(--navbar-color);
 }
@@ -247,58 +251,57 @@ div[class*="st-key-vee_intro"] .stLinkButton a:hover p {
     color: var(--accent-color-neon-green);
 }
 
-/*Bright green border around the picture of Vee*/
+/*Green frame around Vee's picture*/
 div[class*="st-key-vee_image"] img {
     border: 5px solid var(--accent-color-neon-green);
 }
 
-/*Moves Vee down so her box reads like a speech bubble above her*/
+/*Pushes Vee down a bit so it looks like she is talking*/
 div[class*="st-key-vee_image"] {
     margin-top: 170px;
 }
 
-/*Centers Vee's picture and the Hi, I am Vee box on the page,
-  with 30px of space between them*/
+/*Centers Vee and her speech box with some space between them*/
 div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-vee_image"]) {
     gap: 30px;
     justify-content: center;
     align-items: flex-start;
 }
 
-/*Fixed width for Vee's picture column*/
+/*How wide Vee's picture is*/
 div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-vee_image"]) > div[data-testid="stColumn"]:first-child {
     flex: 0 0 280px;
     width: 280px;
 }
 
-/*Vee's box column only as wide as the box (up to 600px)*/
+/*Vee's speech box only takes up as much room as it needs*/
 div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-vee_image"]) > div[data-testid="stColumn"]:last-child {
     flex: 0 1 600px;
     width: auto;
 }
 
-/*Brown background around the whole explore section*/
+/*Dark brown background for the explore section*/
 div[class*="st-key-explore_section"] {
     background-color: var(--brown-color-dark);
     border-radius: 16px;
     padding: 25px;
 }
 
-/*Brown box around the whole Find my tools section*/
+/*Brown box that holds the whole Find my tools section*/
 div[class*="st-key-find_tools_section"] {
     background-color: var(--brown-color);
     border-radius: 16px;
     padding: 25px;
 }
 
-/*Light heading, intro text, and optional systems label in the Find my tools box*/
+/*White text for the heading and intro in Find my tools*/
 div[class*="st-key-find_tools_section"] h2,
 div[class*="st-key-find_tools_section"] > [data-testid="stElementContainer"] p,
 div[class*="st-key-find_tools_section"] [data-testid="stTextInput"] label p {
     color: var(--text-color-white);
 }
 
-/*"What Vee can help you explore" heading in its own box*/
+/*Box for the What Vee can help you explore heading*/
 div[class*="st-key-explore_heading"] {
     background-color: var(--header-color);
     border: 2px solid var(--accent-color-neon-green);
@@ -313,7 +316,7 @@ div[class*="st-key-explore_heading"] h3 {
     text-align: center;
 }
 
-/*Dark blue boxes for the three explore cards*/
+/*The three explore cards*/
 div[class*="st-key-explore_card"] {
     background-color: var(--header-color);
     border: 3px solid var(--accent-color-neon-green);
@@ -322,7 +325,7 @@ div[class*="st-key-explore_card"] {
     height: 100%;
 }
 
-/*Light text inside the dark blue boxes so it stays readable*/
+/*Light text so it shows up on the dark blue cards*/
 div[class*="st-key-explore_card"] h4,
 div[class*="st-key-explore_card"] p,
 div[class*="st-key-explore_card"] [data-testid="stCaptionContainer"],
@@ -331,7 +334,7 @@ div[class*="st-key-explore_card"] [data-testid="stMetricValue"] {
     color: var(--text-color-white);
 }
 
-/*Card titles centered with a straight light line under them (80% of the box width)*/
+/*Centers the card titles and puts a line under them*/
 div[class*="st-key-explore_card"] [data-testid="stMarkdownContainer"] h4 {
     text-align: center;
     width: 80%;
@@ -340,12 +343,12 @@ div[class*="st-key-explore_card"] [data-testid="stMarkdownContainer"] h4 {
     border-bottom: 3px solid var(--text-color-light);
 }
 
-/*Explore buttons: white outline*/
+/*White outline on the explore buttons*/
 div[class*="st-key-explore_card"] .stButton button {
     border: 2px solid var(--text-color-white);
 }
 
-/*Explore buttons: dark text so it shows on the neon green*/
+/*Dark text on the explore buttons so you can read it*/
 div[class*="st-key-explore_card"] .stButton button p {
     color: var(--navbar-color);
 }
@@ -354,12 +357,12 @@ div[class*="st-key-explore_card"] .stButton button:hover p {
     color: var(--accent-color-neon-green);
 }
 
-/*Keeps the three boxes the same height*/
+/*Makes all three cards the same height*/
 div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-explore_card"]) {
     align-items: stretch;
 }
 
-/*Animation: gold blocks fade in*/
+/*Fade in effect for the gold bubbles*/
 @keyframes gold-fade-in {
     from {
         opacity: 0;
@@ -369,7 +372,7 @@ div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-explore_card"]) {
     }
 }
 
-/*Each gold block fades in one after another*/
+/*Each gold bubble fades in one at a time*/
 div[class*="st-key-vee_intro"] [data-testid="stChatMessage"] {
     animation: gold-fade-in 2s ease-out 0.2s both;
 }
@@ -382,7 +385,7 @@ div[class*="st-key-vee_intro"] div[class*="st-key-vee_gold_how"] {
     animation: gold-fade-in 2s ease-out 4.2s both;
 }
 
-/*Turns the animation off for visitors who set their device to reduce motion*/
+/*Skips the fade for people who have reduce motion turned on*/
 @media (prefers-reduced-motion: reduce) {
     div[class*="st-key-vee_intro"] [data-testid="stChatMessage"],
     div[class*="st-key-vee_intro"] div[class*="st-key-vee_gold"] {
