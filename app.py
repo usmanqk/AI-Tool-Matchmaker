@@ -466,138 +466,164 @@ def fill_roi_price():
         st.session_state["roi_price"] = int(round(float(row["monthly_cost"])))
 
 # Navigation and hero
-st.markdown("<style>.stButton>button{background-color:#e8b84b;color:#0b1e4b;font-weight:700;border-radius:12px;padding:12px 20px;min-height:48px}.stButton>button:hover{background-color:#d9a441}.stLinkButton>a{background-color:#e8b84b;color:#0b1e4b;font-weight:700;border-radius:12px;padding:12px 20px;min-height:48px}</style>", unsafe_allow_html=True)
-st.markdown("<div id='top'></div>", unsafe_allow_html=True)
-nav1, nav2, nav3, nav4, nav5 = st.columns(5)
-with nav1:
-    st.link_button("Home", "#top", use_container_width=True)
-with nav2:
-    st.link_button("Find my tools", "#find-my-tools", use_container_width=True)
-with nav3:
-    st.link_button("Catalog", "#catalog-all-tools", use_container_width=True)
-with nav4:
-    st.link_button("About the Website", "#about-the-website", use_container_width=True)
-with nav5:
-    st.link_button("About the Creators", "#about-the-creators", use_container_width=True)
+# All colors and layout live in style.css
+def load_css(file_name):
+    with open(BASE_DIR / file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-st.markdown(
-    """
-    <div style="background-color:#0b1e4b; padding:24px; text-align:center;
-                border-radius:8px;">
-      <h1 style="color:#ffffff; margin:0;">VipervisionAI</h1>
-      <hr style="width:80px; border:2px solid #d9a441; margin:12px auto 0;">
-      <p style="color:#ffffff; margin:8px 0 0;">
-        Find the right AI tools for your small business.
-      </p>
+load_css("style.css")
+
+st.markdown("<div id='top'></div>", unsafe_allow_html=True)
+
+# Nav bar locked to the top of the page
+st.markdown("""
+<div class="navbar">
+    <div class="nav-logo">VipervisionAI</div>
+    <div class="nav-links">
+        <a href="#top" target="_self">Home</a>
+        <a href="#find-my-tools" target="_self">Find my tools</a>
+        <a href="#catalog-all-tools" target="_self">Catalog</a>
+        <a href="#about-the-website" target="_self">About the Website</a>
+        <a href="#about-the-creators" target="_self">About the Creators</a>
     </div>
-    """,
-    unsafe_allow_html=True,
-)
+</div>
+""", unsafe_allow_html=True)
+
+# Header box
+st.markdown("""
+<div class="top-text">
+    <h1>VipervisionAI</h1>
+    <p>Find the right AI tools for your small business.</p>
+</div>
+""", unsafe_allow_html=True)
+
+# Division between header and the rest of the page
+st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
 vee_col, greet_col = st.columns([1, 2])
 with vee_col:
-    if VEE_FILE.exists():
-        try:
-            st.image(str(VEE_FILE), width="stretch")
-        except Exception:
-            st.image(str(VEE_FILE), use_container_width=True)
-    else:
-        st.markdown("#### Vee, your guide")
+    # Container key lets style.css add Vee's border
+    with st.container(key="vee_image"):
+        if VEE_FILE.exists():
+            try:
+                st.image(str(VEE_FILE), width="stretch")
+            except Exception:
+                st.image(str(VEE_FILE), use_container_width=True)
+        else:
+            st.markdown("#### Vee, your guide")
 with greet_col:
-    with st.chat_message("assistant", avatar=vee_avatar()):
-        st.write(
-            "Hi, I am Vee! Tell me your top business goal, "
-            "and I will help you compare up to three real AI tools."
-        )
-    st.write(
-        "Answer five questions to see a ranked shortlist with a clear score "
-        "breakdown, real catalog prices, and practical next steps."
-    )
-    st.markdown(
-        "**How it works:** 1. Answer five questions. 2. Read your top three tools "
-        "and why they matched. 3. Use the first week checklist, compare tools, "
-        "and test the ROI calculator."
-    )
-    st.link_button("Start the five questions", "#find-my-tools", type="primary")
+    # Dark blue box with a green border around Vee's introduction
+    with st.container(key="vee_intro"):
+        with st.chat_message("assistant", avatar=vee_avatar()):
+            st.write(
+                "Hi, I am Vee! Tell me your top business goal, "
+                "and I will help you compare up to three real AI tools."
+            )
+        # Gold section for the intro sentence
+        with st.container(key="vee_gold_answer"):
+            st.write(
+                "Answer five questions to see a ranked shortlist with a clear score "
+                "breakdown, real catalog prices, and practical next steps."
+            )
+        # Gold section for How it works
+        with st.container(key="vee_gold_how"):
+            st.markdown(
+                "**How it works:**\n\n"
+                "1. Answer five questions.\n"
+                "2. Read your top three tools and why they matched.\n"
+                "3. Use the first week checklist, compare tools, and test the ROI calculator."
+            )
+        st.link_button("Start the five questions", "#find-my-tools", type="primary")
 
-st.subheader("What Vee can help you explore")
-card1, card2, card3 = st.columns(3)
-with card1:
-    st.markdown("#### Customer questions")
-    st.write("Review replies and customer conversations.")
-    st.caption("Catalog examples include Google Business Profile and Podium.")
-    if st.button("Explore customer questions", key="explore_customer", use_container_width=True):
-        st.session_state["explore_job"] = "Customer Questions"
-        st.session_state["quiz_job_select"] = "Customer Questions"
-with card2:
-    st.markdown("#### Marketing")
-    st.write("Email campaigns and social content.")
-    st.caption("Catalog examples include Mailchimp and Canva.")
-    if st.button("Explore marketing", key="explore_marketing", use_container_width=True):
-        st.session_state["explore_job"] = "Marketing"
-        st.session_state["quiz_job_select"] = "Marketing"
-with card3:
-    st.markdown("#### Bookings and operations")
-    st.write("Online bookings, scheduling, and daily tasks.")
-    st.caption("Catalog examples include Square Appointments and Homebase.")
-    if st.button("Explore bookings", key="explore_bookings", use_container_width=True):
-        st.session_state["explore_job"] = "Bookings"
-        st.session_state["quiz_job_select"] = "Bookings"
+# Divider between Vee's introduction and the explore section
+st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
-stat1, stat2, stat3 = st.columns(3)
-with stat1:
-    st.metric("Real tools in the catalog", len(tools))
-with stat2:
-    st.metric("Jobs covered", tools["challenge"].nunique())
-with stat3:
-    st.metric("Prices checked", PRICE_CHECK_DATE)
+# Dark background around the whole explore section
+with st.container(key="explore_section"):
+    # Heading in its own box
+    with st.container(key="explore_heading"):
+        st.subheader("What Vee can help you explore")
+
+    card1, card2, card3 = st.columns(3)
+    with card1:
+        with st.container(key="explore_card_customer"):
+            st.markdown("#### Customer questions")
+            st.write("Review replies and customer conversations.")
+            st.caption("Catalog examples include Google Business Profile and Podium.")
+            if st.button("Explore customer questions", key="explore_customer", use_container_width=True):
+                st.session_state["explore_job"] = "Customer Questions"
+                st.session_state["quiz_job_select"] = "Customer Questions"
+            st.metric("Real tools in the catalog", len(tools))
+    with card2:
+        with st.container(key="explore_card_marketing"):
+            st.markdown("#### Marketing")
+            st.write("Email campaigns and social content.")
+            st.caption("Catalog examples include Mailchimp and Canva.")
+            if st.button("Explore marketing", key="explore_marketing", use_container_width=True):
+                st.session_state["explore_job"] = "Marketing"
+                st.session_state["quiz_job_select"] = "Marketing"
+            st.metric("Jobs covered", tools["challenge"].nunique())
+    with card3:
+        with st.container(key="explore_card_bookings"):
+            st.markdown("#### Bookings and operations")
+            st.write("Online bookings, scheduling, and daily tasks.")
+            st.caption("Catalog examples include Square Appointments and Homebase.")
+            if st.button("Explore bookings", key="explore_bookings", use_container_width=True):
+                st.session_state["explore_job"] = "Bookings"
+                st.session_state["quiz_job_select"] = "Bookings"
+            st.metric("Prices checked", PRICE_CHECK_DATE)
+
+# Divider between the explore section and Find my tools
+st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
 # Recommendation questionnaire
-st.header("Find my tools")
-st.write(
-    "Choose the answers that best describe your business. "
-    "The score is a rule based fit guide, not a customer rating."
-)
-
-with st.form("recommendation_form"):
-    with st.container(border=True):
-        st.write("**1. What type of business do you operate?**")
-        business_type = st.selectbox(
-            "Business type",
-            BUSINESS_TYPES,
-            label_visibility="collapsed",
-        )
-    with st.container(border=True):
-        st.write("**2. What is your biggest business challenge?**")
-        job = st.selectbox("Business challenge", JOBS, key="quiz_job_select", label_visibility="collapsed")
-    with st.container(border=True):
-        st.write("**3. What is your budget for AI tools?**")
-        budget_label = st.selectbox(
-            "Monthly budget",
-            BUDGET_OPTIONS,
-            label_visibility="collapsed",
-        )
-    with st.container(border=True):
-        st.write("**4. How many employees do you have?**")
-        employees = st.slider(
-            "Number of employees",
-            1,
-            50,
-            1,
-            label_visibility="collapsed",
-        )
-    with st.container(border=True):
-        st.write("**5. How comfortable are you with technology?**")
-        comfort = st.selectbox(
-            "Technology comfort",
-            COMFORT_OPTIONS,
-            label_visibility="collapsed",
-        )
-    systems = st.text_input(
-        "Optional: systems you already use, such as a point of sale or a spreadsheet",
-        help="This is added to your first week checklist. It does not change the score.",
+# Brown box around the whole Find my tools section
+with st.container(key="find_tools_section"):
+    st.header("Find my tools")
+    st.write(
+        "Choose the answers that best describe your business. "
+        "The score is a rule based fit guide, not a customer rating."
     )
-    submitted = st.form_submit_button("Find my tools", type="primary")
+
+    with st.form("recommendation_form"):
+        with st.container(key="question_card_business"):
+            st.write("**1. What type of business do you operate?**")
+            business_type = st.selectbox(
+                "Business type",
+                BUSINESS_TYPES,
+                label_visibility="collapsed",
+            )
+        with st.container(key="question_card_challenge"):
+            st.write("**2. What is your biggest business challenge?**")
+            job = st.selectbox("Business challenge", JOBS, key="quiz_job_select", label_visibility="collapsed")
+        with st.container(key="question_card_budget"):
+            st.write("**3. What is your budget for AI tools?**")
+            budget_label = st.selectbox(
+                "Monthly budget",
+                BUDGET_OPTIONS,
+                label_visibility="collapsed",
+            )
+        with st.container(key="question_card_employees"):
+            st.write("**4. How many employees do you have?**")
+            employees = st.slider(
+                "Number of employees",
+                1,
+                50,
+                1,
+                label_visibility="collapsed",
+            )
+        with st.container(key="question_card_tech"):
+            st.write("**5. How comfortable are you with technology?**")
+            comfort = st.selectbox(
+                "Technology comfort",
+                COMFORT_OPTIONS,
+                label_visibility="collapsed",
+            )
+        systems = st.text_input(
+            "Optional: systems you already use, such as a point of sale or a spreadsheet",
+            help="This is added to your first week checklist. It does not change the score.",
+        )
+        submitted = st.form_submit_button("Find my tools", type="primary")
 
 if submitted:
     st.session_state["recommendation_results"] = {
