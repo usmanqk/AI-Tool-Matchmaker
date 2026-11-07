@@ -288,6 +288,8 @@ div[class*="st-key-explore_section"] {
     border: 1px solid var(--accent-color-purple);
     border-radius: 16px;
     padding: 25px;
+    max-width: 80%;
+    margin: 0 auto;
 }
 
 /*Box that holds the whole Find my tools section*/
@@ -304,20 +306,48 @@ div[class*="st-key-find_tools_section"] [data-testid="stTextInput"] label p {
     color: var(--text-color-white);
 }
 
-/*Box for the What Vee can help you explore heading*/
+/*What Vee can help you explore heading area*/
 div[class*="st-key-explore_heading"] {
-    background-color: var(--header-color);
-    border: 2px solid var(--accent-color-neon-green);
-    border-radius: 12px;
-    padding: 10px 20px;
     text-align: center;
-    max-width: 1000px;
-    margin: 0 auto 10px auto;
+    max-width: 760px;
+    margin: 10px auto 20px auto;
 }
 
-div[class*="st-key-explore_heading"] h3 {
+/*Small rounded label above the title*/
+.explore-pill {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background-color: rgba(10, 20, 16, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     color: var(--accent-color-neon-green);
-    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/*Big title*/
+.explore-title {
+    font-size: 2.6rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text-color-white);
+    margin: 16px 0 12px 0;
+}
+
+/*Green to blue fade on the word Vee*/
+.vee-gradient {
+    background: linear-gradient(to right, var(--accent-color-neon-green), var(--accent-color-blue));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/*Short gray intro line under the title*/
+.explore-subtitle {
+    color: var(--text-color-light);
+    opacity: 0.75;
+    font-size: 1rem;
+    line-height: 1.6;
 }
 
 /*The three explore cards*/
@@ -327,7 +357,7 @@ div[class*="st-key-explore_card"] {
         var(--header-color);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 16px;
-    padding: 18px;
+    padding: 22px;
     height: 100%;
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
@@ -383,7 +413,7 @@ div[class*="st-key-explore_card"]:hover {
 
 /*Card title and description*/
 .card-title {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 700;
     color: var(--text-color-white);
     margin-bottom: 10px;
@@ -479,9 +509,23 @@ div[class*="st-key-explore_section"] [data-testid="stCaptionContainer"] {
 /*Makes all three cards the same height and keeps them close together in the middle*/
 div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-explore_card"]) {
     align-items: stretch;
-    max-width: 1000px;
+    max-width: 1150px;
     margin: 0 auto;
-    gap: 20px;
+    gap: 24px;
+}
+
+/*Lets each card fill the full height of its column so all three match*/
+div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-explore_card"]) > div[data-testid="stColumn"] div:has(div[class*="st-key-explore_card"]) {
+    height: 100%;
+}
+
+div[class*="st-key-explore_card"] {
+    box-sizing: border-box;
+}
+
+/*Pushes the button and the numbers to the bottom so they line up across the cards*/
+div[class*="st-key-explore_card"] > div:has(.stButton) {
+    margin-top: auto;
 }
 
 /*Fade in effect for the gold bubbles*/
