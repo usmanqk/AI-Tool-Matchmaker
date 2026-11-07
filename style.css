@@ -619,6 +619,27 @@ div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-about_website"]) > d
     height: 100%;
 }
 
+/*Common questions on the About page*/
+div[class*="st-key-about_faq"] {
+    max-width: 70%;
+    margin: 0 auto 30px auto;
+}
+
+div[class*="st-key-about_faq"] [data-testid="stExpander"] details {
+    background-color: var(--header-color);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+}
+
+div[class*="st-key-about_faq"] [data-testid="stExpander"] summary p {
+    color: var(--accent-color-neon-green);
+    font-weight: 600;
+}
+
+div[class*="st-key-about_faq"] [data-testid="stExpander"] p {
+    color: var(--text-color-white);
+}
+
 /*Fade in effect for the gold bubbles*/
 @keyframes gold-fade-in {
     from {
