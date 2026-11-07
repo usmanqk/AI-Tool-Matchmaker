@@ -873,6 +873,12 @@ def about_page():
 
     st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
+    # Title for the competition details below
+    st.markdown(
+        '<div class="about-section-title">Information about the competition</div>',
+        unsafe_allow_html=True,
+    )
+
     # Your original dropdowns, styled the same as the questions above
     with st.container(key="about_faq_more"):
         # Chat helper uses the same deterministic scoring rules
@@ -1106,63 +1112,29 @@ def about_page():
                 "jobs, all budgets, and both comfort levels."
             )
 
-    # Free help beyond software, laid out like the explore section
-    with st.container(key="explore_section_help"):
-        with st.container(key="explore_heading_help"):
-            st.markdown(
-                '<div class="explore-pill">Free for small business owners</div>'
-                '<div class="explore-title">Free help <span class="vee-gradient">beyond</span> software</div>'
-                '<p class="explore-subtitle">These free resources can help a small business owner beyond '
-                'the tools above. VipervisionAI does not run them and does not receive anything from them.</p>',
-                unsafe_allow_html=True,
-            )
-        help_columns = st.columns(3)
-        for column, card in zip(help_columns, FREE_HELP_CARDS):
-            with column:
-                with st.container(key=f"explore_card_{card['key']}"):
-                    st.markdown(
-                        f'<div class="card-top"><span class="card-category">{card["category"]}</span>'
-                        f'<span class="card-badge">Free</span></div>'
-                        f'<div class="card-title">{card["title"]}</div>'
-                        f'<p class="card-description">{card["description"]}</p>',
-                        unsafe_allow_html=True,
-                    )
-                    st.link_button(card["button"] + " \u2192", card["url"], use_container_width=True)
-
-    # Divider between Free help and the About sections
+    # Divider before About the Creators
     st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
-    # About sections, side by side in two blocks
-    about_website_col, about_creators_col = st.columns(2)
-    with about_website_col:
-        with st.container(key="about_website"):
-            st.header("About the Website")
-            st.write(
-                "VipervisionAI helps restaurants and coffee shops discover, compare, "
-                "and explore adoption steps for AI tools. It includes a searchable catalog, "
-                "a transparent rule based fit recommender, comparison, and an ROI estimate. "
-                "It is not an AI picker and does not claim to deploy tools."
-            )
-    with about_creators_col:
-        with st.container(key="about_creators"):
-            st.header("About the Creators")
-            st.write(
-                "Built by The Vipers, Team 62, for the AI for Small Business Hackathon: "
-                "Usman, Natalie, and Will, team lead."
-            )
-            if TEAM_CONTRIBUTIONS:
-                st.write("**Who did what**")
-                for member, contribution in TEAM_CONTRIBUTIONS.items():
-                    st.write(f"{member}: {contribution}")
-            if OUTSIDE_COACHING:
-                st.write("**Coaching and outside help we acknowledge**")
-                for line in OUTSIDE_COACHING:
-                    st.write(line)
-            st.caption(
-                "The Hackathon is run for the Smith Master Student Association at the "
-                "University of Maryland. As the Hackathon rules state, rights to submissions "
-                "belong to the University of Maryland."
-            )
+    # About the Creators
+    with st.container(key="about_creators"):
+        st.header("About the Creators")
+        st.write(
+            "Built by The Vipers, Team 62, for the AI for Small Business Hackathon: "
+            "Usman, Natalie, and Will, team lead."
+        )
+        if TEAM_CONTRIBUTIONS:
+            st.write("**Who did what**")
+            for member, contribution in TEAM_CONTRIBUTIONS.items():
+                st.write(f"{member}: {contribution}")
+        if OUTSIDE_COACHING:
+            st.write("**Coaching and outside help we acknowledge**")
+            for line in OUTSIDE_COACHING:
+                st.write(line)
+        st.caption(
+            "The Hackathon is run for the Smith Master Student Association at the "
+            "University of Maryland. As the Hackathon rules state, rights to submissions "
+            "belong to the University of Maryland."
+        )
 
     st.caption(
         f"VipervisionAI, by The Vipers. Prices checked {PRICE_CHECK_DATE}. "
