@@ -1012,7 +1012,7 @@ def about_page():
             )
             if st.button("Ask Vee", key="ask_vee"):
                 typed = bool(chat_text.strip())
-                typed_job = job_from_text(chat_text) if typed else None
+                typed_job = ((ai_job_from_text(chat_text) or job_from_text(chat_text))if typed else None)
                 st.session_state["chat_answer"] = {
                     "business": chat_business,
                     "job": typed_job or chat_job,
