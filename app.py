@@ -736,38 +736,6 @@ def home_page():
             show_free_help_links()
         st.button("Clear my results", on_click=clear_results)
 
-    # Comparison
-    st.header("Compare up to three tools")
-    picked = st.multiselect(
-        "Choose tools to compare",
-        tools["tool_name"].tolist(),
-        max_selections=3,
-    )
-    if picked:
-        compare = tools.set_index("tool_name").loc[picked].reset_index()
-        compare["free_start"] = compare["free_price"].apply(
-            lambda value: "Yes" if pd.notna(value) and value == 0 else "No"
-        )
-        compare = compare[
-            ["tool_name", "challenge", "price_note", "free_start", "effort", "pros", "cons"]
-        ].rename(
-            columns={
-                "tool_name": "Tool",
-                "challenge": "Job",
-                "price_note": "Price",
-                "free_start": "Free starting option",
-                "effort": "Setup",
-                "pros": "What it does well",
-                "cons": "What to check",
-            }
-        )
-        show_table(compare)
-        if len(picked) == 1:
-            st.info("Pick one or two more tools to compare them side by side.")
-        for name in picked:
-            link_row = tools[tools["tool_name"] == name].iloc[0]
-            show_tool_link(link_row["website"], name)
-
     # Return on investment calculator
     st.header("Is it worth it? ROI calculator")
     st.write(
@@ -1153,6 +1121,38 @@ def catalog_page():
             show_tool_link(tool["website"])
             st.caption(f"Price checked {date_label(tool['checked_date'])}.")
             st.markdown(f"[Source details](https://{tool['source']})")
+
+    # Comparison
+    st.header("Compare up to three tools")
+    picked = st.multiselect(
+        "Choose tools to compare",
+        tools["tool_name"].tolist(),
+        max_selections=3,
+    )
+    if picked:
+        compare = tools.set_index("tool_name").loc[picked].reset_index()
+        compare["free_start"] = compare["free_price"].apply(
+            lambda value: "Yes" if pd.notna(value) and value == 0 else "No"
+        )
+        compare = compare[
+            ["tool_name", "challenge", "price_note", "free_start", "effort", "pros", "cons"]
+        ].rename(
+            columns={
+                "tool_name": "Tool",
+                "challenge": "Job",
+                "price_note": "Price",
+                "free_start": "Free starting option",
+                "effort": "Setup",
+                "pros": "What it does well",
+                "cons": "What to check",
+            }
+        )
+        show_table(compare)
+        if len(picked) == 1:
+            st.info("Pick one or two more tools to compare them side by side.")
+        for name in picked:
+            link_row = tools[tools["tool_name"] == name].iloc[0]
+            show_tool_link(link_row["website"], name)
 
 
 # Page routing. The nav bar at the top links to these pages,
