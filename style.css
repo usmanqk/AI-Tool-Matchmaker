@@ -540,6 +540,42 @@ div[class*="st-key-explore_card"] > div:has(.stButton) {
     margin-top: auto;
 }
 
+/*About the Website and About the Creators blocks with a green to blue fade*/
+div[class*="st-key-about_website"],
+div[class*="st-key-about_creators"] {
+    background:
+        linear-gradient(135deg, rgba(57, 255, 136, 0.30), rgba(73, 184, 208, 0.30)),
+        var(--header-color);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 24px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/*White text inside the About blocks*/
+div[class*="st-key-about_website"] h2,
+div[class*="st-key-about_website"] p,
+div[class*="st-key-about_creators"] h2,
+div[class*="st-key-about_creators"] p {
+    color: var(--text-color-white);
+}
+
+/*Small print in the About blocks*/
+div[class*="st-key-about_creators"] [data-testid="stCaptionContainer"] {
+    color: var(--text-color-light);
+}
+
+/*Makes both About blocks the same height*/
+div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-about_website"]) {
+    align-items: stretch;
+    gap: 24px;
+}
+
+div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-about_website"]) > div[data-testid="stColumn"] div:has(div[class*="st-key-about_"]) {
+    height: 100%;
+}
+
 /*Fade in effect for the gold bubbles*/
 @keyframes gold-fade-in {
     from {
