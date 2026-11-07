@@ -617,7 +617,7 @@ st.write(
 st.header("About the Creators")
 st.write(
     "Built by The Vipers, Team 62, for the AI for Small Business Hackathon: "
-    "Usman Khan, Cypress, and Will, team lead."
+    "Usman, Natalie, and Will, team lead."
 )
 
 st.caption(
