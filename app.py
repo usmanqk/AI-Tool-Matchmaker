@@ -1,4 +1,5 @@
 import re
+from html import escape
 from pathlib import Path
 
 import pandas as pd
@@ -129,15 +130,9 @@ def load_tools(path):
         raise ValueError("Every catalog tool must have one unique name.")
     return data
 
-DESIGN_MODE = False
 try:
     tools = load_tools(DATA_FILE)
-except FileNotFoundError:
-    # DESIGN PRACTICE ONLY: run quietly with an empty catalog when ai_tools.csv is missing.
-    # Change this back to st.stop() before sharing with the team.
-    DESIGN_MODE = True
-    tools = pd.DataFrame(columns=REQUIRED_COLUMNS)
-except (pd.errors.ParserError, ValueError) as error:
+except (FileNotFoundError, pd.errors.ParserError, ValueError) as error:
     st.error("The tool catalog could not be loaded. Check ai_tools.csv and try again.")
     st.caption(str(error))
     st.stop()
@@ -146,7 +141,7 @@ newest_check = pd.to_datetime(tools["checked_date"], errors="coerce").max()
 if pd.notna(newest_check):
     PRICE_CHECK_DATE = date_label(newest_check)
 
-if not DESIGN_MODE and len(tools) != EXPECTED_TOOL_COUNT:
+if len(tools) != EXPECTED_TOOL_COUNT:
     st.warning(
         f"The catalog currently contains {len(tools)} tools. "
         f"The contest demonstration expects {EXPECTED_TOOL_COUNT}."
@@ -471,6 +466,66 @@ def fill_roi_price():
     if pd.notna(row["monthly_cost"]):
         st.session_state["roi_price"] = int(round(float(row["monthly_cost"])))
 
+# The three explore cards. Tool names and counts come straight from the catalog.
+EXPLORE_CARDS = [
+    {
+        "key": "customer",
+        "category": "Support and reputation",
+        "title": "Customer questions",
+        "description": "Reply to reviews and answer customer questions in one place.",
+        "jobs": ["Reviews", "Customer Questions"],
+        "button": "Explore customer questions",
+        "quiz_job": "Customer Questions",
+    },
+    {
+        "key": "marketing",
+        "category": "Content and campaigns",
+        "title": "Marketing",
+        "description": "Make social posts, email campaigns, and simple promotions.",
+        "jobs": ["Marketing", "Social media"],
+        "button": "Explore marketing",
+        "quiz_job": "Marketing",
+    },
+    {
+        "key": "bookings",
+        "category": "Scheduling and workflow",
+        "title": "Bookings and operations",
+        "description": "Handle online bookings, staff schedules, and daily tasks.",
+        "jobs": ["Bookings", "Daily operations", "Scheduling"],
+        "button": "Explore bookings",
+        "quiz_job": "Bookings",
+    },
+]
+
+def show_explore_card(card):
+    """One explore card: label, title, description, catalog tools, button, and real counts."""
+    matches = tools[tools["challenge"].isin(card["jobs"])]
+    free_count = int((matches["free_price"] == 0).sum())
+    easy_count = int((matches["effort"] == "Easy").sum())
+    chips = "".join(
+        f'<span class="card-chip">{escape(str(name))}</span>' for name in matches["tool_name"]
+    ) or '<span class="card-empty">No catalog tools yet</span>'
+    badge = '<span class="card-badge">Free options</span>' if free_count else ""
+    st.markdown(
+        f'<div class="card-top"><span class="card-category">{card["category"]}</span>{badge}</div>'
+        f'<div class="card-title">{card["title"]}</div>'
+        f'<p class="card-description">{card["description"]}</p>'
+        f'<div class="card-label">Tools in our catalog</div>'
+        f'<div class="card-chips">{chips}</div>',
+        unsafe_allow_html=True,
+    )
+    if st.button(card["button"] + " \u2192", key=f"explore_{card['key']}", use_container_width=True):
+        st.session_state["explore_job"] = card["quiz_job"]
+        st.session_state["quiz_job_select"] = card["quiz_job"]
+    st.markdown(
+        f'<div class="card-metrics">'
+        f'<div><div class="metric-label">Tools</div><div class="metric-value">{len(matches)}</div></div>'
+        f'<div><div class="metric-label">Free start</div><div class="metric-value">{free_count}</div></div>'
+        f'<div><div class="metric-label">Easy setup</div><div class="metric-value">{easy_count}</div></div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
 # Navigation and hero
 # All colors and layout live in style.css
 def load_css(file_name):
@@ -486,476 +541,408 @@ st.markdown("""
 <div class="navbar">
     <div class="nav-logo">VipervisionAI</div>
     <div class="nav-links">
-        <a href="#top" target="_self">Home</a>
-        <a href="#find-my-tools" target="_self">Find my tools</a>
-        <a href="#catalog-all-tools" target="_self">Catalog</a>
-        <a href="#about-the-website" target="_self">About the Website</a>
-        <a href="#about-the-creators" target="_self">About the Creators</a>
+        <a href="./" target="_self">Home</a>
+        <a href="./#find-my-tools" target="_self">Find my tools</a>
+        <a href="./catalog" target="_self">Catalog</a>
+        <a href="./#about-the-website" target="_self">About the Website</a>
+        <a href="./#about-the-creators" target="_self">About the Creators</a>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# Header box
-st.markdown("""
+# Home page: everything except the catalog
+def home_page():
+    # Header box
+    st.markdown("""
 <div class="top-text">
     <h1>VipervisionAI</h1>
     <p>Find the right AI tools for your small business.</p>
 </div>
 """, unsafe_allow_html=True)
 
-# Division between header and the rest of the page
-st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
+    # Division between header and the rest of the page
+    st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
-vee_col, greet_col = st.columns([1, 2])
-with vee_col:
-    # Container key lets style.css add Vee's border
-    with st.container(key="vee_image"):
-        if VEE_FILE.exists():
-            try:
-                st.image(str(VEE_FILE), width="stretch")
-            except Exception:
-                st.image(str(VEE_FILE), use_container_width=True)
-        else:
-            st.markdown("#### Vee, your guide")
-with greet_col:
-    # Dark blue box with a green border around Vee's introduction
-    with st.container(key="vee_intro"):
-        with st.chat_message("assistant", avatar=vee_avatar()):
-            st.write(
-                "Hi, I am Vee! Tell me your top business goal, "
-                "and I will help you compare up to three real AI tools."
-            )
-        # Gold section for the intro sentence
-        with st.container(key="vee_gold_answer"):
-            st.write(
-                "Answer five questions to see a ranked shortlist with a clear score "
-                "breakdown, real catalog prices, and practical next steps."
-            )
-        # Gold section for How it works
-        with st.container(key="vee_gold_how"):
-            st.markdown(
-                "**How it works:**\n\n"
-                "1. Answer five questions.\n"
-                "2. Read your top three tools and why they matched.\n"
-                "3. Use the first week checklist, compare tools, and test the ROI calculator."
-            )
-        st.link_button("Start the five questions", "#find-my-tools", type="primary")
+    vee_col, greet_col = st.columns([1, 2])
+    with vee_col:
+        # Container key lets style.css add Vee's border
+        with st.container(key="vee_image"):
+            if VEE_FILE.exists():
+                try:
+                    st.image(str(VEE_FILE), width="stretch")
+                except Exception:
+                    st.image(str(VEE_FILE), use_container_width=True)
+            else:
+                st.markdown("#### Vee, your guide")
+    with greet_col:
+        # Dark blue box with a green border around Vee's introduction
+        with st.container(key="vee_intro"):
+            with st.chat_message("assistant", avatar=vee_avatar()):
+                st.write(
+                    "Hi, I am Vee! Tell me your top business goal, "
+                    "and I will help you compare up to three real AI tools."
+                )
+            # Gold section for the intro sentence
+            with st.container(key="vee_gold_answer"):
+                st.write(
+                    "Answer five questions to see a ranked shortlist with a clear score "
+                    "breakdown, real catalog prices, and practical next steps."
+                )
+            # Gold section for How it works
+            with st.container(key="vee_gold_how"):
+                st.markdown(
+                    "**How it works:**\n\n"
+                    "1. Answer five questions.\n"
+                    "2. Read your top three tools and why they matched.\n"
+                    "3. Use the first week checklist, compare tools, and test the ROI calculator."
+                )
+            st.link_button("Start the five questions", "#find-my-tools", type="primary")
 
-# Divider between Vee's introduction and the explore section
-st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
+    # Divider between Vee's introduction and the explore section
+    st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
-# Dark background around the whole explore section
-with st.container(key="explore_section"):
-    # Heading in its own box
-    with st.container(key="explore_heading"):
-        st.subheader("Vee can help you explore")
+    # Dark background around the whole explore section
+    with st.container(key="explore_section"):
+        # Heading in its own box
+        with st.container(key="explore_heading"):
+            st.subheader("What Vee can help you explore")
 
-    card1, card2, card3 = st.columns(3)
-    with card1:
-        with st.container(key="explore_card_customer"):
-            st.markdown("#### Customer Questions")
-            st.write("Review replies and customer conversations.")
-            st.caption("Catalog examples include Google Business Profile and Podium.")
-            if st.button("Explore customer questions", key="explore_customer", use_container_width=True):
-                st.session_state["explore_job"] = "Customer Questions"
-                st.session_state["quiz_job_select"] = "Customer Questions"
-            st.metric("Real tools in the catalog", len(tools))
-    with card2:
-        with st.container(key="explore_card_marketing"):
-            st.markdown("#### Marketing")
-            st.write("Email campaigns and social content.")
-            st.caption("Catalog examples include Mailchimp and Canva.")
-            if st.button("Explore marketing", key="explore_marketing", use_container_width=True):
-                st.session_state["explore_job"] = "Marketing"
-                st.session_state["quiz_job_select"] = "Marketing"
-            st.metric("Jobs covered", tools["challenge"].nunique())
-    with card3:
-        with st.container(key="explore_card_bookings"):
-            st.markdown("#### Bookings and Operations")
-            st.write("Online bookings, scheduling, and daily tasks.")
-            st.caption("Catalog examples include Square Appointments and Homebase.")
-            if st.button("Explore bookings", key="explore_bookings", use_container_width=True):
-                st.session_state["explore_job"] = "Bookings"
-                st.session_state["quiz_job_select"] = "Bookings"
-            st.metric("Prices checked", PRICE_CHECK_DATE)
-
-# Divider between the explore section and Find my tools
-st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
-
-# Recommendation questionnaire
-st.header("Find my tools")
-st.write(
-    "Choose the answers that best describe your business. "
-    "The score is a rule based fit guide, not a customer rating."
-)
-
-with st.form("recommendation_form"):
-    with st.container(key="question_card_business"):
-        st.write("**1. What type of business do you operate?**")
-        business_type = st.selectbox(
-            "Business type",
-            BUSINESS_TYPES,
-            label_visibility="collapsed",
-        )
-    with st.container(key="question_card_challenge"):
-        st.write("**2. What is your biggest business challenge?**")
-        job = st.selectbox("Business challenge", JOBS, key="quiz_job_select", label_visibility="collapsed")
-    with st.container(key="question_card_budget"):
-        st.write("**3. What is your budget for AI tools?**")
-        budget_label = st.selectbox(
-            "Monthly budget",
-            BUDGET_OPTIONS,
-            label_visibility="collapsed",
-        )
-    with st.container(key="question_card_employees"):
-        st.write("**4. How many employees do you have?**")
-        employees = st.slider(
-            "Number of employees",
-            1,
-            50,
-            1,
-            label_visibility="collapsed",
-        )
-    with st.container(key="question_card_tech"):
-        st.write("**5. How comfortable are you with technology?**")
-        comfort = st.selectbox(
-            "Technology comfort",
-            COMFORT_OPTIONS,
-            label_visibility="collapsed",
-        )
-    systems = st.text_input(
-        "Optional: systems you already use, such as a point of sale or a spreadsheet",
-        help="This is added to your first week checklist. It does not change the score.",
-    )
-    submitted = st.form_submit_button("Find my tools", type="primary")
-
-if submitted:
-    st.session_state["recommendation_results"] = {
-        "business_type": business_type,
-        "job": job,
-        "budget_label": budget_label,
-        "employees": employees,
-        "comfort": comfort,
-        "systems": systems,
-    }
-
-if "recommendation_results" in st.session_state:
-    result = st.session_state["recommendation_results"]
-    pool = business_tools(tools, result["business_type"])
-    ranked = score_tools(
-        pool,
-        result["job"],
-        BUDGET_CAP[result["budget_label"]],
-        result["comfort"],
-    )
-    st.subheader("Your best matching tools")
-    st.write(
-        f"Matched to {result['business_type']} and {result['job']}, "
-        f"for a team of {result['employees']}."
-    )
-    st.info(
-        "How the score works: job fit is worth 3 points, price fit is worth "
-        "2 points, and effort fit is worth 1 point. Equal scores are listed "
-        "alphabetically. A score is not a review or a guarantee of results."
-    )
-    if not ranked:
-        st.warning(
-            "No catalog tools are listed for this job and business type. "
-            "Try another job to explore the current catalog."
-        )
-    else:
-        if len(ranked) < 3:
-            st.caption(
-                f"The catalog has {len(ranked)} tool"
-                f"{'' if len(ranked) == 1 else 's'} for this job and business type. "
-                "We do not fill the list with tools for other jobs."
-            )
-        for index, item in enumerate(ranked[:3], start=1):
-            with st.container(border=True):
-                show_tool_result(item, index, result["employees"])
-        st.download_button(
-            "Download your shortlist",
-            data=shortlist_csv(ranked),
-            file_name="vipervision_shortlist.csv",
-            mime="text/csv",
-        )
-        show_first_week_plan(ranked[0]["tool"], result.get("systems", ""))
-        show_starter_stack(
-            pool, result["budget_label"], result["comfort"], result["job"]
-        )
-        st.subheader("Free help beyond software")
-        st.write(
-            "A local advisor can help you decide before you spend money. These "
-            "resources are free."
-        )
-        show_free_help_links()
-    st.button("Clear my results", on_click=clear_results)
-
-# Catalog
-st.header("Catalog: all tools")
-st.write(
-    f"The catalog contains {len(tools)} tools. Prices were checked "
-    f"{PRICE_CHECK_DATE}. Provider prices and terms can change."
-)
-search_text = st.text_input(
-    "Search the catalog",
-    placeholder="For example: schedule, reviews, Square",
-)
-catalog_col1, catalog_col2, catalog_col3 = st.columns([1, 1, 1])
-with catalog_col1:
-    job_filter = st.selectbox("Filter by job", ["All"] + sorted(tools["challenge"].unique()))
-with catalog_col2:
-    business_filter = st.selectbox("Filter by business", ["All"] + BUSINESS_TYPES)
-with catalog_col3:
-    free_only = st.checkbox("Show only tools with a free starting option")
-shown = tools.copy()
-if job_filter != "All":
-    shown = shown[shown["challenge"] == job_filter]
-if business_filter != "All":
-    shown = business_tools(shown, business_filter)
-if free_only:
-    shown = shown[shown["free_price"] == 0]
-if search_text.strip():
-    words = search_text.strip().lower()
-    haystack = (
-        shown["tool_name"].astype(str)
-        + " "
-        + shown["challenge"].astype(str)
-        + " "
-        + shown["pros"].astype(str)
-        + " "
-        + shown["cons"].astype(str)
-        + " "
-        + shown["price_note"].astype(str)
-    ).str.lower()
-    shown = shown[haystack.str.contains(words, regex=False)]
-st.caption(f"Showing {len(shown)} catalog tools.")
-if shown.empty:
-    st.info("No catalog tools match those filters. Clear the search or a filter to see more.")
-for _, tool in shown.iterrows():
-    with st.container(border=True):
-        st.markdown(f"#### {tool['tool_name']}")
-        st.write(f"**Job:** {tool['challenge']}  |  **Business:** {tool['business_type']}")
-        st.write(f"**Price:** {md(tool['price_note'])}  |  **Setup:** {tool['effort']}")
-        st.write(f"**What it does well:** {md(tool['pros'])}")
-        st.write(f"**What to check:** {md(tool['cons'])}")
-        show_tool_link(tool["website"])
-        st.caption(f"Price checked {date_label(tool['checked_date'])}.")
-        st.markdown(f"[Source details](https://{tool['source']})")
-
-# Comparison
-st.header("Compare up to three tools")
-picked = st.multiselect(
-    "Choose tools to compare",
-    tools["tool_name"].tolist(),
-    max_selections=3,
-)
-if picked:
-    compare = tools.set_index("tool_name").loc[picked].reset_index()
-    compare["free_start"] = compare["free_price"].apply(
-        lambda value: "Yes" if pd.notna(value) and value == 0 else "No"
-    )
-    compare = compare[
-        ["tool_name", "challenge", "price_note", "free_start", "effort", "pros", "cons"]
-    ].rename(
-        columns={
-            "tool_name": "Tool",
-            "challenge": "Job",
-            "price_note": "Price",
-            "free_start": "Free starting option",
-            "effort": "Setup",
-            "pros": "What it does well",
-            "cons": "What to check",
-        }
-    )
-    show_table(compare)
-    if len(picked) == 1:
-        st.info("Pick one or two more tools to compare them side by side.")
-    for name in picked:
-        link_row = tools[tools["tool_name"] == name].iloc[0]
-        show_tool_link(link_row["website"], name)
-
-# Return on investment calculator
-st.header("Is it worth it? ROI calculator")
-st.write(
-    "Use your own estimates to explore a possible return. "
-    "The time reduction is an assumption, not a measured result."
-)
-st.selectbox(
-    "Optional: fill the tool price from a catalog tool",
-    ["My own number"] + tools["tool_name"].tolist(),
-    key="roi_tool",
-    on_change=fill_roi_price,
-)
-roi_choice = st.session_state.get("roi_tool", "My own number")
-if roi_choice != "My own number":
-    roi_row = tools[tools["tool_name"] == roi_choice].iloc[0]
-    if pd.isna(roi_row["monthly_cost"]):
-        st.caption(f"{roi_choice} is quote only, so enter your own price below.")
-    elif pd.notna(roi_row["free_price"]) and roi_row["free_price"] == 0:
+        card_columns = st.columns(3)
+        for column, card in zip(card_columns, EXPLORE_CARDS):
+            with column:
+                with st.container(key=f"explore_card_{card['key']}"):
+                    show_explore_card(card)
         st.caption(
-            f"The slider uses the paid plan price for {roi_choice}. It also has a "
-            "free starting option, so set the slider to 0 to test the free plan."
+            f"Counts come from our tool catalog. Prices checked {PRICE_CHECK_DATE}."
         )
-hours = st.slider("Hours per week spent on this task", 0, 40, 5)
-value = st.slider("Value of your time, dollars per hour", 10, 100, 25)
-reduction = st.slider("Assumed time reduction, percent", 0, 80, 30)
-if "roi_price" not in st.session_state:
-    st.session_state["roi_price"] = 0
-tool_price = st.slider("Tool price, dollars per month", 0, 500, key="roi_price")
-monthly_time_value = hours * value * 4.33
-estimated_savings = monthly_time_value * reduction / 100
-estimated_net = estimated_savings - tool_price
-roi1, roi2, roi3 = st.columns(3)
-with roi1:
-    st.metric("Monthly time value", money(monthly_time_value))
-with roi2:
-    st.metric("Estimated monthly savings", money(estimated_savings))
-with roi3:
-    st.metric("Estimated net monthly benefit", money(estimated_net))
-if tool_price > 0 and monthly_time_value > 0:
-    needed = tool_price / monthly_time_value * 100
-    if needed <= 100:
-        st.write(
-            f"To cover a {md(f'${tool_price}')} monthly price, the tool would need "
-            f"to cut about {needed:.0f} percent of the time spent on this task."
-        )
-    else:
-        st.write(
-            "At these inputs the tool costs more than all of the time spent on "
-            "this task is worth."
-        )
-if estimated_net < 0:
-    st.warning("With these inputs the tool costs more than the time it saves.")
-st.caption(
-    "This estimate uses 4.33 weeks in a month. It excludes setup time, taxes, fees, "
-    "and changes in demand. Use the provider price and your own measured results "
-    "before making a decision."
-)
 
-# Chat helper uses the same deterministic scoring rules
-with st.expander("Ask Vee in chat"):
-    st.write(
-        "I use the same catalog and scoring rules as the questionnaire. "
-        "I do not invent tools, prices, or reviews."
-    )
-    chat_business = st.selectbox(
-        "What type of business do you run?",
-        BUSINESS_TYPES,
-        key="chat_business",
-    )
-    chat_job = st.selectbox("What is your top job?", JOBS, key="chat_job")
-    chat_text = st.text_input(
-        "Or type what you need help with (optional)",
-        key="chat_text",
-        placeholder="For example: I need help with staff schedules",
-    )
-    chat_budget = st.selectbox(
-        "What is your budget?",
-        BUDGET_OPTIONS,
-        key="chat_budget",
-    )
-    chat_comfort = st.selectbox(
-        "How comfortable are you with technology?",
-        COMFORT_OPTIONS,
-        key="chat_comfort",
-    )
-    if st.button("Ask Vee", key="ask_vee"):
-        typed = bool(chat_text.strip())
-        typed_job = job_from_text(chat_text) if typed else None
-        st.session_state["chat_answer"] = {
-            "business": chat_business,
-            "job": typed_job or chat_job,
-            "budget": chat_budget,
-            "comfort": chat_comfort,
-            "text": chat_text.strip(),
-            "typed": typed,
-            "understood": typed_job is not None,
+    # Divider between the explore section and Find my tools
+    st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
+
+    # Recommendation questionnaire
+    # Brown box around the whole Find my tools section
+    with st.container(key="find_tools_section"):
+        st.header("Find my tools")
+        st.write(
+            "Choose the answers that best describe your business. "
+            "The score is a rule based fit guide, not a customer rating."
+        )
+
+        with st.form("recommendation_form"):
+            with st.container(key="question_card_business"):
+                st.write("**1. What type of business do you operate?**")
+                business_type = st.selectbox(
+                    "Business type",
+                    BUSINESS_TYPES,
+                    label_visibility="collapsed",
+                )
+            with st.container(key="question_card_challenge"):
+                st.write("**2. What is your biggest business challenge?**")
+                job = st.selectbox("Business challenge", JOBS, key="quiz_job_select", label_visibility="collapsed")
+            with st.container(key="question_card_budget"):
+                st.write("**3. What is your budget for AI tools?**")
+                budget_label = st.selectbox(
+                    "Monthly budget",
+                    BUDGET_OPTIONS,
+                    label_visibility="collapsed",
+                )
+            with st.container(key="question_card_employees"):
+                st.write("**4. How many employees do you have?**")
+                employees = st.slider(
+                    "Number of employees",
+                    1,
+                    50,
+                    1,
+                    label_visibility="collapsed",
+                )
+            with st.container(key="question_card_tech"):
+                st.write("**5. How comfortable are you with technology?**")
+                comfort = st.selectbox(
+                    "Technology comfort",
+                    COMFORT_OPTIONS,
+                    label_visibility="collapsed",
+                )
+            systems = st.text_input(
+                "Optional: systems you already use, such as a point of sale or a spreadsheet",
+                help="This is added to your first week checklist. It does not change the score.",
+            )
+            submitted = st.form_submit_button("Find my tools", type="primary")
+
+    if submitted:
+        st.session_state["recommendation_results"] = {
+            "business_type": business_type,
+            "job": job,
+            "budget_label": budget_label,
+            "employees": employees,
+            "comfort": comfort,
+            "systems": systems,
         }
-    if "chat_answer" in st.session_state:
-        show_chat_answer(st.session_state["chat_answer"])
 
-# Research and methodology
-with st.expander("Research and scoring method"):
-    st.write(
-        "The current catalog contains the tools listed above for restaurants "
-        "and coffee shops. Each entry includes a job category, business type, "
-        "setup effort, price note, provider website, source, and price check date."
-    )
-    st.write(
-        "The fit score uses three visible rules. Job fit contributes 3 points "
-        "when the catalog job matches. Price fit contributes 2 points when a "
-        "published free starting option or monthly cost fits the selected budget. "
-        "Effort fit contributes 1 point when the setup level matches the selected "
-        "technology comfort."
-    )
-    st.write(
-        "A quote only price is not treated as a confirmed budget fit. The score "
-        "is a platform fit estimate, not an independent performance rating, "
-        "customer review, or guarantee."
-    )
-    st.write(
-        "**Beyond reviews:** the score uses facts we can check, which are the job "
-        "match, the published price, and the setup effort. It does not use customer "
-        "reviews or star ratings. In the sixteen week plan we would add more "
-        "checkable facts, such as which systems a tool works with."
-    )
-    st.write(
-        "**What each question tests:** business type and job decide which catalog "
-        "tools can match. Budget tests whether a published price fits. Technology "
-        "comfort tests whether the setup effort fits. Team size is used for a "
-        "free plan limit check when the catalog states one, and it does not change "
-        "the score."
-    )
-    st.write(
-        "Sources and dates are shown with each catalog entry. Provider pricing "
-        "should be checked again before purchase."
-    )
-    free_count = int((tools["free_price"] == 0).sum())
-    quote_count = int(tools["monthly_cost"].isna().sum())
-    one_tool_jobs = sorted(
-        job_name
-        for job_name, count in tools["challenge"].value_counts().items()
-        if count == 1
-    )
-    st.write(
-        f"How we researched: the catalog covers {len(tools)} tools across "
-        f"{tools['challenge'].nunique()} jobs, from {tools['source'].nunique()} "
-        f"sources, all checked {PRICE_CHECK_DATE}. {free_count} tools have a "
-        f"free starting option and {quote_count} "
-        f"{'is' if quote_count == 1 else 'are'} quote only. "
-        f"{len(one_tool_jobs)} {'job has' if len(one_tool_jobs) == 1 else 'jobs have'} "
-        f"one catalog tool each: {', '.join(one_tool_jobs)}."
-    )
-    st.write("**Catalog coverage by job**")
-    flags = tools.assign(
-        free_start=tools["free_price"].eq(0),
-        quote_only=tools["monthly_cost"].isna(),
-        easy_setup=tools["effort"].eq("Easy"),
-    )
-    coverage = flags.groupby("challenge")[["free_start", "quote_only", "easy_setup"]].sum()
-    coverage.insert(0, "tools", flags.groupby("challenge").size())
-    coverage = coverage.astype(int).reset_index()
-    coverage.columns = [
-        "Job",
-        "Tools",
-        "Free starting option",
-        "Quote only",
-        "Easy setup",
-    ]
-    show_table(coverage)
+    if "recommendation_results" in st.session_state:
+        result = st.session_state["recommendation_results"]
+        pool = business_tools(tools, result["business_type"])
+        ranked = score_tools(
+            pool,
+            result["job"],
+            BUDGET_CAP[result["budget_label"]],
+            result["comfort"],
+        )
+        st.subheader("Your best matching tools")
+        st.write(
+            f"Matched to {result['business_type']} and {result['job']}, "
+            f"for a team of {result['employees']}."
+        )
+        st.info(
+            "How the score works: job fit is worth 3 points, price fit is worth "
+            "2 points, and effort fit is worth 1 point. Equal scores are listed "
+            "alphabetically. A score is not a review or a guarantee of results."
+        )
+        if not ranked:
+            st.warning(
+                "No catalog tools are listed for this job and business type. "
+                "Try another job to explore the current catalog."
+            )
+        else:
+            if len(ranked) < 3:
+                st.caption(
+                    f"The catalog has {len(ranked)} tool"
+                    f"{'' if len(ranked) == 1 else 's'} for this job and business type. "
+                    "We do not fill the list with tools for other jobs."
+                )
+            for index, item in enumerate(ranked[:3], start=1):
+                with st.container(border=True):
+                    show_tool_result(item, index, result["employees"])
+            st.download_button(
+                "Download your shortlist",
+                data=shortlist_csv(ranked),
+                file_name="vipervision_shortlist.csv",
+                mime="text/csv",
+            )
+            show_first_week_plan(ranked[0]["tool"], result.get("systems", ""))
+            show_starter_stack(
+                pool, result["budget_label"], result["comfort"], result["job"]
+            )
+            st.subheader("Free help beyond software")
+            st.write(
+                "A local advisor can help you decide before you spend money. These "
+                "resources are free."
+            )
+            show_free_help_links()
+        st.button("Clear my results", on_click=clear_results)
 
-# Architecture and future work
-with st.expander("How the prototype works and what comes next"):
-    st.write(
-        "**Current prototype:** the CSV catalog supplies tool details and "
-        "published prices. The questionnaire filters by business type and job. "
-        "A deterministic Python function calculates the fit score and reasons. "
-        "The catalog, comparison view, ROI calculator, and chat helper use "
-        "the same catalog data."
+    # Comparison
+    st.header("Compare up to three tools")
+    picked = st.multiselect(
+        "Choose tools to compare",
+        tools["tool_name"].tolist(),
+        max_selections=3,
     )
-    st.graphviz_chart(
-        r"""
+    if picked:
+        compare = tools.set_index("tool_name").loc[picked].reset_index()
+        compare["free_start"] = compare["free_price"].apply(
+            lambda value: "Yes" if pd.notna(value) and value == 0 else "No"
+        )
+        compare = compare[
+            ["tool_name", "challenge", "price_note", "free_start", "effort", "pros", "cons"]
+        ].rename(
+            columns={
+                "tool_name": "Tool",
+                "challenge": "Job",
+                "price_note": "Price",
+                "free_start": "Free starting option",
+                "effort": "Setup",
+                "pros": "What it does well",
+                "cons": "What to check",
+            }
+        )
+        show_table(compare)
+        if len(picked) == 1:
+            st.info("Pick one or two more tools to compare them side by side.")
+        for name in picked:
+            link_row = tools[tools["tool_name"] == name].iloc[0]
+            show_tool_link(link_row["website"], name)
+
+    # Return on investment calculator
+    st.header("Is it worth it? ROI calculator")
+    st.write(
+        "Use your own estimates to explore a possible return. "
+        "The time reduction is an assumption, not a measured result."
+    )
+    st.selectbox(
+        "Optional: fill the tool price from a catalog tool",
+        ["My own number"] + tools["tool_name"].tolist(),
+        key="roi_tool",
+        on_change=fill_roi_price,
+    )
+    roi_choice = st.session_state.get("roi_tool", "My own number")
+    if roi_choice != "My own number":
+        roi_row = tools[tools["tool_name"] == roi_choice].iloc[0]
+        if pd.isna(roi_row["monthly_cost"]):
+            st.caption(f"{roi_choice} is quote only, so enter your own price below.")
+        elif pd.notna(roi_row["free_price"]) and roi_row["free_price"] == 0:
+            st.caption(
+                f"The slider uses the paid plan price for {roi_choice}. It also has a "
+                "free starting option, so set the slider to 0 to test the free plan."
+            )
+    hours = st.slider("Hours per week spent on this task", 0, 40, 5)
+    value = st.slider("Value of your time, dollars per hour", 10, 100, 25)
+    reduction = st.slider("Assumed time reduction, percent", 0, 80, 30)
+    if "roi_price" not in st.session_state:
+        st.session_state["roi_price"] = 0
+    tool_price = st.slider("Tool price, dollars per month", 0, 500, key="roi_price")
+    monthly_time_value = hours * value * 4.33
+    estimated_savings = monthly_time_value * reduction / 100
+    estimated_net = estimated_savings - tool_price
+    roi1, roi2, roi3 = st.columns(3)
+    with roi1:
+        st.metric("Monthly time value", money(monthly_time_value))
+    with roi2:
+        st.metric("Estimated monthly savings", money(estimated_savings))
+    with roi3:
+        st.metric("Estimated net monthly benefit", money(estimated_net))
+    if tool_price > 0 and monthly_time_value > 0:
+        needed = tool_price / monthly_time_value * 100
+        if needed <= 100:
+            st.write(
+                f"To cover a {md(f'${tool_price}')} monthly price, the tool would need "
+                f"to cut about {needed:.0f} percent of the time spent on this task."
+            )
+        else:
+            st.write(
+                "At these inputs the tool costs more than all of the time spent on "
+                "this task is worth."
+            )
+    if estimated_net < 0:
+        st.warning("With these inputs the tool costs more than the time it saves.")
+    st.caption(
+        "This estimate uses 4.33 weeks in a month. It excludes setup time, taxes, fees, "
+        "and changes in demand. Use the provider price and your own measured results "
+        "before making a decision."
+    )
+
+    # Chat helper uses the same deterministic scoring rules
+    with st.expander("Ask Vee in chat"):
+        st.write(
+            "I use the same catalog and scoring rules as the questionnaire. "
+            "I do not invent tools, prices, or reviews."
+        )
+        chat_business = st.selectbox(
+            "What type of business do you run?",
+            BUSINESS_TYPES,
+            key="chat_business",
+        )
+        chat_job = st.selectbox("What is your top job?", JOBS, key="chat_job")
+        chat_text = st.text_input(
+            "Or type what you need help with (optional)",
+            key="chat_text",
+            placeholder="For example: I need help with staff schedules",
+        )
+        chat_budget = st.selectbox(
+            "What is your budget?",
+            BUDGET_OPTIONS,
+            key="chat_budget",
+        )
+        chat_comfort = st.selectbox(
+            "How comfortable are you with technology?",
+            COMFORT_OPTIONS,
+            key="chat_comfort",
+        )
+        if st.button("Ask Vee", key="ask_vee"):
+            typed = bool(chat_text.strip())
+            typed_job = job_from_text(chat_text) if typed else None
+            st.session_state["chat_answer"] = {
+                "business": chat_business,
+                "job": typed_job or chat_job,
+                "budget": chat_budget,
+                "comfort": chat_comfort,
+                "text": chat_text.strip(),
+                "typed": typed,
+                "understood": typed_job is not None,
+            }
+        if "chat_answer" in st.session_state:
+            show_chat_answer(st.session_state["chat_answer"])
+
+    # Research and methodology
+    with st.expander("Research and scoring method"):
+        st.write(
+            "The current catalog contains the tools listed above for restaurants "
+            "and coffee shops. Each entry includes a job category, business type, "
+            "setup effort, price note, provider website, source, and price check date."
+        )
+        st.write(
+            "The fit score uses three visible rules. Job fit contributes 3 points "
+            "when the catalog job matches. Price fit contributes 2 points when a "
+            "published free starting option or monthly cost fits the selected budget. "
+            "Effort fit contributes 1 point when the setup level matches the selected "
+            "technology comfort."
+        )
+        st.write(
+            "A quote only price is not treated as a confirmed budget fit. The score "
+            "is a platform fit estimate, not an independent performance rating, "
+            "customer review, or guarantee."
+        )
+        st.write(
+            "**Beyond reviews:** the score uses facts we can check, which are the job "
+            "match, the published price, and the setup effort. It does not use customer "
+            "reviews or star ratings. In the sixteen week plan we would add more "
+            "checkable facts, such as which systems a tool works with."
+        )
+        st.write(
+            "**What each question tests:** business type and job decide which catalog "
+            "tools can match. Budget tests whether a published price fits. Technology "
+            "comfort tests whether the setup effort fits. Team size is used for a "
+            "free plan limit check when the catalog states one, and it does not change "
+            "the score."
+        )
+        st.write(
+            "Sources and dates are shown with each catalog entry. Provider pricing "
+            "should be checked again before purchase."
+        )
+        free_count = int((tools["free_price"] == 0).sum())
+        quote_count = int(tools["monthly_cost"].isna().sum())
+        one_tool_jobs = sorted(
+            job_name
+            for job_name, count in tools["challenge"].value_counts().items()
+            if count == 1
+        )
+        st.write(
+            f"How we researched: the catalog covers {len(tools)} tools across "
+            f"{tools['challenge'].nunique()} jobs, from {tools['source'].nunique()} "
+            f"sources, all checked {PRICE_CHECK_DATE}. {free_count} tools have a "
+            f"free starting option and {quote_count} "
+            f"{'is' if quote_count == 1 else 'are'} quote only. "
+            f"{len(one_tool_jobs)} {'job has' if len(one_tool_jobs) == 1 else 'jobs have'} "
+            f"one catalog tool each: {', '.join(one_tool_jobs)}."
+        )
+        st.write("**Catalog coverage by job**")
+        flags = tools.assign(
+            free_start=tools["free_price"].eq(0),
+            quote_only=tools["monthly_cost"].isna(),
+            easy_setup=tools["effort"].eq("Easy"),
+        )
+        coverage = flags.groupby("challenge")[["free_start", "quote_only", "easy_setup"]].sum()
+        coverage.insert(0, "tools", flags.groupby("challenge").size())
+        coverage = coverage.astype(int).reset_index()
+        coverage.columns = [
+            "Job",
+            "Tools",
+            "Free starting option",
+            "Quote only",
+            "Easy setup",
+        ]
+        show_table(coverage)
+
+    # Architecture and future work
+    with st.expander("How the prototype works and what comes next"):
+        st.write(
+            "**Current prototype:** the CSV catalog supplies tool details and "
+            "published prices. The questionnaire filters by business type and job. "
+            "A deterministic Python function calculates the fit score and reasons. "
+            "The catalog, comparison view, ROI calculator, and chat helper use "
+            "the same catalog data."
+        )
+        st.graphviz_chart(
+            r"""
         digraph {
           rankdir=LR;
           node [shape=box, style="rounded,filled", fillcolor="#e8eefc",
@@ -977,131 +964,198 @@ with st.expander("How the prototype works and what comes next"):
           scorer -> chat;
         }
         """
-    )
-    st.caption(
-        "In words: the catalog file is loaded and checked once. One scoring "
-        "function feeds the quiz results, the starter stack, and the chat helper. "
-        "The catalog, compare view, and ROI calculator read the same loaded data."
-    )
-    st.write(
-        "**Scalability path:** keep catalog records separate from scoring logic, "
-        "add validated tool records and business categories, and test scoring "
-        "rules as the catalog grows. The current prototype does not claim "
-        "production scale or live provider integrations."
-    )
-    st.write("**Sixteen week plan**")
-    plan = pd.DataFrame(
-        [
-            {
-                "Weeks": "1 to 4",
-                "Phase": "Research",
-                "Work": "Interview owners of restaurants, coffee shops, HVAC "
-                "companies, and landscaping companies. Rank their biggest jobs "
-                "and set the metrics we will use to judge tools.",
-            },
-            {
-                "Weeks": "5 to 8",
-                "Phase": "Catalog",
-                "Work": "Grow the catalog beyond twelve tools with a repeatable "
-                "tool discovery process. Record a source and check date for every "
-                "price. Add fields for the point of sale, accounting, and "
-                "calendar systems each tool works with.",
-            },
-            {
-                "Weeks": "9 to 12",
-                "Phase": "Platform",
-                "Work": "Move the catalog to a managed database, add automated "
-                "scoring tests, build multi tool workflows, and match owners to "
-                "Small Business Administration resources.",
-            },
-            {
-                "Weeks": "13 to 16",
-                "Phase": "Validate",
-                "Work": "Run usability tests with first time owners, review "
-                "accessibility, tune the scoring rules with their feedback, and "
-                "prepare the handoff.",
-            },
+        )
+        st.caption(
+            "In words: the catalog file is loaded and checked once. One scoring "
+            "function feeds the quiz results, the starter stack, and the chat helper. "
+            "The catalog, compare view, and ROI calculator read the same loaded data."
+        )
+        st.write(
+            "**Scalability path:** keep catalog records separate from scoring logic, "
+            "add validated tool records and business categories, and test scoring "
+            "rules as the catalog grows. The current prototype does not claim "
+            "production scale or live provider integrations."
+        )
+        st.write("**Sixteen week plan**")
+        plan = pd.DataFrame(
+            [
+                {
+                    "Weeks": "1 to 4",
+                    "Phase": "Research",
+                    "Work": "Interview owners of restaurants, coffee shops, HVAC "
+                    "companies, and landscaping companies. Rank their biggest jobs "
+                    "and set the metrics we will use to judge tools.",
+                },
+                {
+                    "Weeks": "5 to 8",
+                    "Phase": "Catalog",
+                    "Work": "Grow the catalog beyond twelve tools with a repeatable "
+                    "tool discovery process. Record a source and check date for every "
+                    "price. Add fields for the point of sale, accounting, and "
+                    "calendar systems each tool works with.",
+                },
+                {
+                    "Weeks": "9 to 12",
+                    "Phase": "Platform",
+                    "Work": "Move the catalog to a managed database, add automated "
+                    "scoring tests, build multi tool workflows, and match owners to "
+                    "Small Business Administration resources.",
+                },
+                {
+                    "Weeks": "13 to 16",
+                    "Phase": "Validate",
+                    "Work": "Run usability tests with first time owners, review "
+                    "accessibility, tune the scoring rules with their feedback, and "
+                    "prepare the handoff.",
+                },
+            ]
+        )
+        show_table(plan)
+        st.write(
+            "**Not in the prototype yet:** star ratings, live provider integrations, "
+            "and tool deployment. The checklist shows owners how to adopt a tool, and "
+            "the owner completes setup with the provider."
+        )
+
+    # Catalog health check and scorer test
+    with st.expander("Catalog health check and scorer test"):
+        st.write(
+            "These checks run on every page load against the catalog file and the scorer."
+        )
+        effort_ok = bool(tools["effort"].isin(["Easy", "Medium"]).all())
+        https_ok = bool(tools["website"].astype(str).str.startswith("https://").all())
+        dates_ok = bool(pd.to_datetime(tools["checked_date"], errors="coerce").notna().all())
+        sources_ok = bool(tools["source"].notna().all())
+        jobs_ok = bool(tools["challenge"].isin(JOBS).all())
+        passed, total = run_scorer_checks(tools)
+        checks = [
+            (f"The catalog has {EXPECTED_TOOL_COUNT} tools", len(tools) == EXPECTED_TOOL_COUNT),
+            ("Every tool name is unique", not tools["tool_name"].duplicated().any()),
+            ("Every tool has a price check date", dates_ok),
+            ("Every tool has a source", sources_ok),
+            ("Every website link uses https", https_ok),
+            ("Every setup level is Easy or Medium", effort_ok),
+            ("Every tool job is one the quiz can ask about", jobs_ok),
+            ("Vee image file is found", VEE_FILE.exists()),
+            (f"Scorer checks passed: {passed} of {total}", passed == total),
         ]
-    )
-    show_table(plan)
+        check_rows = [
+            {"Check": label, "Result": "Pass" if ok else "Needs attention"}
+            for label, ok in checks
+        ]
+        show_table(pd.DataFrame(check_rows))
+        st.caption(
+            "The scorer checks confirm that scores stay between 3 and 6, results are "
+            "sorted from best to worst, every result matches the chosen job, and the "
+            "breakdown adds up to the score. They run for both business types, all "
+            "jobs, all budgets, and both comfort levels."
+        )
+
+    # Free help beyond software
+    st.header("Free help beyond software")
     st.write(
-        "**Not in the prototype yet:** star ratings, live provider integrations, "
-        "and tool deployment. The checklist shows owners how to adopt a tool, and "
-        "the owner completes setup with the provider."
+        "These free resources can help a small business owner beyond the tools "
+        "above. VipervisionAI does not run them and does not receive anything "
+        "from them."
+    )
+    show_free_help_links()
+
+    # About sections
+    st.header("About the Website")
+    st.write(
+        "VipervisionAI helps restaurants and coffee shops discover, compare, "
+        "and explore adoption steps for AI tools. It includes a searchable catalog, "
+        "a transparent rule based fit recommender, comparison, and an ROI estimate. "
+        "It is not an AI picker and does not claim to deploy tools."
     )
 
-# Catalog health check and scorer test
-with st.expander("Catalog health check and scorer test"):
+    st.header("About the Creators")
     st.write(
-        "These checks run on every page load against the catalog file and the scorer."
+        "Built by The Vipers, Team 62, for the AI for Small Business Hackathon: "
+        "Usman, Natalie, and Will, team lead."
     )
-    effort_ok = bool(tools["effort"].isin(["Easy", "Medium"]).all())
-    https_ok = bool(tools["website"].astype(str).str.startswith("https://").all())
-    dates_ok = bool(pd.to_datetime(tools["checked_date"], errors="coerce").notna().all())
-    sources_ok = bool(tools["source"].notna().all())
-    jobs_ok = bool(tools["challenge"].isin(JOBS).all())
-    passed, total = run_scorer_checks(tools)
-    checks = [
-        (f"The catalog has {EXPECTED_TOOL_COUNT} tools", len(tools) == EXPECTED_TOOL_COUNT),
-        ("Every tool name is unique", not tools["tool_name"].duplicated().any()),
-        ("Every tool has a price check date", dates_ok),
-        ("Every tool has a source", sources_ok),
-        ("Every website link uses https", https_ok),
-        ("Every setup level is Easy or Medium", effort_ok),
-        ("Every tool job is one the quiz can ask about", jobs_ok),
-        ("Vee image file is found", VEE_FILE.exists()),
-        (f"Scorer checks passed: {passed} of {total}", passed == total),
-    ]
-    check_rows = [
-        {"Check": label, "Result": "Pass" if ok else "Needs attention"}
-        for label, ok in checks
-    ]
-    show_table(pd.DataFrame(check_rows))
+    if TEAM_CONTRIBUTIONS:
+        st.write("**Who did what**")
+        for member, contribution in TEAM_CONTRIBUTIONS.items():
+            st.write(f"{member}: {contribution}")
+    if OUTSIDE_COACHING:
+        st.write("**Coaching and outside help we acknowledge**")
+        for line in OUTSIDE_COACHING:
+            st.write(line)
     st.caption(
-        "The scorer checks confirm that scores stay between 3 and 6, results are "
-        "sorted from best to worst, every result matches the chosen job, and the "
-        "breakdown adds up to the score. They run for both business types, all "
-        "jobs, all budgets, and both comfort levels."
+        "The Hackathon is run for the Smith Master Student Association at the "
+        "University of Maryland. As the Hackathon rules state, rights to submissions "
+        "belong to the University of Maryland."
     )
 
-# Free help beyond software
-st.header("Free help beyond software")
-st.write(
-    "These free resources can help a small business owner beyond the tools "
-    "above. VipervisionAI does not run them and does not receive anything "
-    "from them."
-)
-show_free_help_links()
+    st.caption(
+        f"VipervisionAI, by The Vipers. Prices checked {PRICE_CHECK_DATE}. "
+        "The prototype can continue improving after the video submission."
+    )
 
-# About sections
-st.header("About the Website")
-st.write(
-    "VipervisionAI helps restaurants and coffee shops discover, compare, "
-    "and explore adoption steps for AI tools. It includes a searchable catalog, "
-    "a transparent rule based fit recommender, comparison, and an ROI estimate. "
-    "It is not an AI picker and does not claim to deploy tools."
-)
 
-st.header("About the Creators")
-st.write(
-    "Built by The Vipers, Team 62, for the AI for Small Business Hackathon: "
-    "Usman, Natalie, and Will, team lead."
-)
-if TEAM_CONTRIBUTIONS:
-    st.write("**Who did what**")
-    for member, contribution in TEAM_CONTRIBUTIONS.items():
-        st.write(f"{member}: {contribution}")
-if OUTSIDE_COACHING:
-    st.write("**Coaching and outside help we acknowledge**")
-    for line in OUTSIDE_COACHING:
-        st.write(line)
-st.caption(
-    "The Hackathon is run for the Smith Master Student Association at the "
-    "University of Maryland. As the Hackathon rules state, rights to submissions "
-    "belong to the University of Maryland."
-)
+# Catalog page: the full list of tools on its own page
+def catalog_page():
+    # Catalog
+    st.header("Catalog: all tools")
+    st.write(
+        f"The catalog contains {len(tools)} tools. Prices were checked "
+        f"{PRICE_CHECK_DATE}. Provider prices and terms can change."
+    )
+    search_text = st.text_input(
+        "Search the catalog",
+        placeholder="For example: schedule, reviews, Square",
+    )
+    catalog_col1, catalog_col2, catalog_col3 = st.columns([1, 1, 1])
+    with catalog_col1:
+        job_filter = st.selectbox("Filter by job", ["All"] + sorted(tools["challenge"].unique()))
+    with catalog_col2:
+        business_filter = st.selectbox("Filter by business", ["All"] + BUSINESS_TYPES)
+    with catalog_col3:
+        free_only = st.checkbox("Show only tools with a free starting option")
+    shown = tools.copy()
+    if job_filter != "All":
+        shown = shown[shown["challenge"] == job_filter]
+    if business_filter != "All":
+        shown = business_tools(shown, business_filter)
+    if free_only:
+        shown = shown[shown["free_price"] == 0]
+    if search_text.strip():
+        words = search_text.strip().lower()
+        haystack = (
+            shown["tool_name"].astype(str)
+            + " "
+            + shown["challenge"].astype(str)
+            + " "
+            + shown["pros"].astype(str)
+            + " "
+            + shown["cons"].astype(str)
+            + " "
+            + shown["price_note"].astype(str)
+        ).str.lower()
+        shown = shown[haystack.str.contains(words, regex=False)]
+    st.caption(f"Showing {len(shown)} catalog tools.")
+    if shown.empty:
+        st.info("No catalog tools match those filters. Clear the search or a filter to see more.")
+    for _, tool in shown.iterrows():
+        with st.container(border=True):
+            st.markdown(f"#### {tool['tool_name']}")
+            st.write(f"**Job:** {tool['challenge']}  |  **Business:** {tool['business_type']}")
+            st.write(f"**Price:** {md(tool['price_note'])}  |  **Setup:** {tool['effort']}")
+            st.write(f"**What it does well:** {md(tool['pros'])}")
+            st.write(f"**What to check:** {md(tool['cons'])}")
+            show_tool_link(tool["website"])
+            st.caption(f"Price checked {date_label(tool['checked_date'])}.")
+            st.markdown(f"[Source details](https://{tool['source']})")
 
-st.caption(
-    f"VipervisionAI, by The Vipers. Prices checked {PRICE_CHECK_DATE}. "
-    "The prototype can continue improving after the video submission."
+
+# Page routing. The nav bar at the top links to these pages,
+# so Streamlit's own page menu is hidden.
+page = st.navigation(
+    [
+        st.Page(home_page, title="Home", url_path="home", default=True),
+        st.Page(catalog_page, title="Catalog", url_path="catalog"),
+    ],
+    position="hidden",
 )
+page.run()
