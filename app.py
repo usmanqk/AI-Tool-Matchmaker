@@ -12,7 +12,7 @@ st.set_page_config(
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_FILE = BASE_DIR / "ai_tools.csv"
-VEE_FILE = BASE_DIR / "vee.png"
+VEE_FILE = BASE_DIR / "vee_full.png"
 EXPECTED_TOOL_COUNT = 12
 PRICE_CHECK_DATE = "Nov 6, 2026"  # replaced by the newest checked_date in the catalog
 
