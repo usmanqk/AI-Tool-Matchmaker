@@ -289,7 +289,7 @@ div[class*="st-key-explore_section"] {
     border-radius: 16px;
     padding: 25px;
     max-width: 80%;
-    margin: 0 auto;
+    margin: 0 auto 30px auto;
 }
 
 /*Box that holds the whole Find my tools section*/
@@ -375,17 +375,20 @@ div[class*="st-key-explore_card"] {
 }
 
 /*Each card gets its own accent color*/
-div[class*="st-key-explore_card_customer"] {
+div[class*="st-key-explore_card_customer"],
+div[class*="st-key-explore_card_sba"] {
     --card-accent: #39FF88;
     --card-glow: rgba(57, 255, 136, 0.18);
 }
 
-div[class*="st-key-explore_card_marketing"] {
+div[class*="st-key-explore_card_marketing"],
+div[class*="st-key-explore_card_score"] {
     --card-accent: #49B8D0;
     --card-glow: rgba(73, 184, 208, 0.18);
 }
 
-div[class*="st-key-explore_card_bookings"] {
+div[class*="st-key-explore_card_bookings"],
+div[class*="st-key-explore_card_partners"] {
     --card-accent: #D9A441;
     --card-glow: rgba(217, 164, 65, 0.18);
 }
@@ -469,20 +472,24 @@ div[class*="st-key-explore_card"]:hover {
 }
 
 /*Card buttons use the card's accent color*/
-div[class*="st-key-explore_card"] .stButton button {
+div[class*="st-key-explore_card"] .stButton button,
+div[class*="st-key-explore_card"] .stLinkButton a {
     background-color: var(--card-accent);
     border: 2px solid var(--text-color-white);
 }
 
-div[class*="st-key-explore_card"] .stButton button p {
+div[class*="st-key-explore_card"] .stButton button p,
+div[class*="st-key-explore_card"] .stLinkButton a p {
     color: var(--navbar-color);
 }
 
-div[class*="st-key-explore_card"] .stButton button:hover {
+div[class*="st-key-explore_card"] .stButton button:hover,
+div[class*="st-key-explore_card"] .stLinkButton a:hover {
     background-color: var(--navbar-color);
 }
 
-div[class*="st-key-explore_card"] .stButton button:hover p {
+div[class*="st-key-explore_card"] .stButton button:hover p,
+div[class*="st-key-explore_card"] .stLinkButton a:hover p {
     color: var(--card-accent);
 }
 
@@ -536,14 +543,14 @@ div[class*="st-key-explore_card"] {
 }
 
 /*Pushes the button and the numbers to the bottom so they line up across the cards*/
-div[class*="st-key-explore_card"] > div:has(.stButton) {
+div[class*="st-key-explore_card"] > div:has(.stButton),
+div[class*="st-key-explore_card"] > div:has(.stLinkButton) {
     margin-top: auto;
 }
 
-/*About the Website, About the Creators, and Free help blocks with a green to blue fade*/
+/*About the Website and About the Creators blocks with a green to blue fade*/
 div[class*="st-key-about_website"],
-div[class*="st-key-about_creators"],
-div[class*="st-key-about_free_help"] {
+div[class*="st-key-about_creators"] {
     background:
         linear-gradient(135deg, rgba(57, 255, 136, 0.30), rgba(73, 184, 208, 0.30)),
         var(--header-color);
@@ -558,23 +565,18 @@ div[class*="st-key-about_free_help"] {
 div[class*="st-key-about_website"] h2,
 div[class*="st-key-about_website"] p,
 div[class*="st-key-about_creators"] h2,
-div[class*="st-key-about_creators"] p,
-div[class*="st-key-about_free_help"] h2,
-div[class*="st-key-about_free_help"] p {
+div[class*="st-key-about_creators"] p {
     color: var(--text-color-white);
 }
 
 /*Keeps the About titles at the top so both line up*/
 div[class*="st-key-about_website"],
-div[class*="st-key-about_creators"],
-div[class*="st-key-about_free_help"] {
+div[class*="st-key-about_creators"] {
     text-align: center;
     justify-content: flex-start;
 }
 
 /*Centers the text in the About blocks*/
-div[class*="st-key-about_free_help"] h2,
-div[class*="st-key-about_free_help"] [data-testid="stMarkdownContainer"],
 div[class*="st-key-about_website"] h2,
 div[class*="st-key-about_creators"] h2,
 div[class*="st-key-about_website"] [data-testid="stMarkdownContainer"],
@@ -586,8 +588,7 @@ div[class*="st-key-about_creators"] [data-testid="stCaptionContainer"] {
 
 /*Tiny white line between each About title and its text*/
 div[class*="st-key-about_website"] [data-testid="stHeading"]::after,
-div[class*="st-key-about_creators"] [data-testid="stHeading"]::after,
-div[class*="st-key-about_free_help"] [data-testid="stHeading"]::after {
+div[class*="st-key-about_creators"] [data-testid="stHeading"]::after {
     content: "";
     display: block;
     width: 60px;
@@ -611,18 +612,6 @@ div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-about_website"]) {
 
 div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-about_website"]) > div[data-testid="stColumn"] div:has(div[class*="st-key-about_"]) {
     height: 100%;
-}
-
-/*Free help block on its own line, 60% of the page and centered*/
-div[class*="st-key-about_free_help"] {
-    max-width: 60%;
-    margin: 0 auto 24px auto;
-    height: auto;
-}
-
-/*Links in the Free help block*/
-div[class*="st-key-about_free_help"] a {
-    color: var(--accent-color-neon-green);
 }
 
 /*Fade in effect for the gold bubbles*/
