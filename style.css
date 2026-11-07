@@ -306,6 +306,11 @@ div[class*="st-key-find_tools_section"] [data-testid="stTextInput"] label p {
     color: var(--text-color-white);
 }
 
+/*Free help purple box is a little narrower, 70% of the page*/
+div[class*="st-key-explore_section_help"] {
+    max-width: 70%;
+}
+
 /*What Vee can help you explore heading area*/
 div[class*="st-key-explore_heading"] {
     text-align: center;
