@@ -406,7 +406,45 @@ def shortlist_csv(ranked):
             }
         )
     return pd.DataFrame(rows).to_csv(index=False)
+# This is the AI integration 
+def ai_job_from_text(text):
+    """Use OpenRouter to interpret a business problem."""
+    if not text.strip():
+        return None
 
+    try:
+        response = requests.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {st.secrets['OPENROUTER_API_KEY']}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": "openai/gpt-4o-mini",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": (
+                            "Classify this small-business problem into "
+                            "exactly one of these categories: "
+                            + ", ".join(JOBS)
+                            + ". Respond with only the category name."
+                        ),
+                    },
+                    {"role": "user", "content": text},
+                ],
+                "temperature": 0,
+            },
+            timeout=20,
+        )
+
+        response.raise_for_status()
+        category = response.json()["choices"][0]["message"]["content"].strip()
+
+        return category if category in JOBS else None
+
+    except Exception:
+        return None
 def job_from_text(text):
     """Pick the job whose plain words appear most often in the typed text."""
     words = set(re.findall(r"[a-z]+", text.lower()))
