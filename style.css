@@ -649,13 +649,6 @@ div[class*="st-key-about_faq"] [data-testid="stExpander"] p {
     margin-bottom: 16px;
 }
 
-/*About the Creators on its own, 60% of the page and centered*/
-div[class*="st-key-about_creators"] {
-    max-width: 60%;
-    margin: 0 auto 24px auto;
-    height: auto;
-}
-
 /*Fade in effect for the gold bubbles*/
 @keyframes gold-fade-in {
     from {
