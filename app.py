@@ -1034,33 +1034,37 @@ def home_page():
     )
     show_free_help_links()
 
-    # About sections
-    st.header("About the Website")
-    st.write(
-        "VipervisionAI helps restaurants and coffee shops discover, compare, "
-        "and explore adoption steps for AI tools. It includes a searchable catalog, "
-        "a transparent rule based fit recommender, comparison, and an ROI estimate. "
-        "It is not an AI picker and does not claim to deploy tools."
-    )
-
-    st.header("About the Creators")
-    st.write(
-        "Built by The Vipers, Team 62, for the AI for Small Business Hackathon: "
-        "Usman, Natalie, and Will, team lead."
-    )
-    if TEAM_CONTRIBUTIONS:
-        st.write("**Who did what**")
-        for member, contribution in TEAM_CONTRIBUTIONS.items():
-            st.write(f"{member}: {contribution}")
-    if OUTSIDE_COACHING:
-        st.write("**Coaching and outside help we acknowledge**")
-        for line in OUTSIDE_COACHING:
-            st.write(line)
-    st.caption(
-        "The Hackathon is run for the Smith Master Student Association at the "
-        "University of Maryland. As the Hackathon rules state, rights to submissions "
-        "belong to the University of Maryland."
-    )
+    # About sections, side by side in two blocks
+    about_website_col, about_creators_col = st.columns(2)
+    with about_website_col:
+        with st.container(key="about_website"):
+            st.header("About the Website")
+            st.write(
+                "VipervisionAI helps restaurants and coffee shops discover, compare, "
+                "and explore adoption steps for AI tools. It includes a searchable catalog, "
+                "a transparent rule based fit recommender, comparison, and an ROI estimate. "
+                "It is not an AI picker and does not claim to deploy tools."
+            )
+    with about_creators_col:
+        with st.container(key="about_creators"):
+            st.header("About the Creators")
+            st.write(
+                "Built by The Vipers, Team 62, for the AI for Small Business Hackathon: "
+                "Usman, Natalie, and Will, team lead."
+            )
+            if TEAM_CONTRIBUTIONS:
+                st.write("**Who did what**")
+                for member, contribution in TEAM_CONTRIBUTIONS.items():
+                    st.write(f"{member}: {contribution}")
+            if OUTSIDE_COACHING:
+                st.write("**Coaching and outside help we acknowledge**")
+                for line in OUTSIDE_COACHING:
+                    st.write(line)
+            st.caption(
+                "The Hackathon is run for the Smith Master Student Association at the "
+                "University of Maryland. As the Hackathon rules state, rights to submissions "
+                "belong to the University of Maryland."
+            )
 
     st.caption(
         f"VipervisionAI, by The Vipers. Prices checked {PRICE_CHECK_DATE}. "
