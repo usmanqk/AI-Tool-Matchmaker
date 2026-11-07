@@ -1025,14 +1025,15 @@ def home_page():
             "jobs, all budgets, and both comfort levels."
         )
 
-    # Free help beyond software
-    st.header("Free help beyond software")
-    st.write(
-        "These free resources can help a small business owner beyond the tools "
-        "above. VipervisionAI does not run them and does not receive anything "
-        "from them."
-    )
-    show_free_help_links()
+    # Free help beyond software, in its own block like the About sections
+    with st.container(key="about_free_help"):
+        st.header("Free help beyond software")
+        st.write(
+            "These free resources can help a small business owner beyond the tools "
+            "above. VipervisionAI does not run them and does not receive anything "
+            "from them."
+        )
+        show_free_help_links()
 
     # About sections, side by side in two blocks
     about_website_col, about_creators_col = st.columns(2)
