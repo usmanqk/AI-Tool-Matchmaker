@@ -573,7 +573,7 @@ st.markdown("""
         <a href="./#find-my-tools" target="_self">Find my tools</a>
         <a href="./catalog" target="_self">Catalog</a>
         <a href="./about" target="_self">About the Website</a>
-        <a href="./about#about-the-creators" target="_self">About the Creators</a>
+        <a href="./#about-the-creators" target="_self">About the Creators</a>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -764,62 +764,104 @@ def home_page():
             show_free_help_links()
         st.button("Clear my results", on_click=clear_results)
 
-    # Return on investment calculator
-    st.header("Is it worth it? ROI calculator")
-    st.write(
-        "Use your own estimates to explore a possible return. "
-        "The time reduction is an assumption, not a measured result."
-    )
-    st.selectbox(
-        "Optional: fill the tool price from a catalog tool",
-        ["My own number"] + tools["tool_name"].tolist(),
-        key="roi_tool",
-        on_change=fill_roi_price,
-    )
-    roi_choice = st.session_state.get("roi_tool", "My own number")
-    if roi_choice != "My own number":
-        roi_row = tools[tools["tool_name"] == roi_choice].iloc[0]
-        if pd.isna(roi_row["monthly_cost"]):
-            st.caption(f"{roi_choice} is quote only, so enter your own price below.")
-        elif pd.notna(roi_row["free_price"]) and roi_row["free_price"] == 0:
+    # The ROI calculator only shows up after someone clicks Find my tools
+    if "recommendation_results" in st.session_state:
+        # Return on investment calculator
+        st.header("Is it worth it? ROI calculator")
+        st.write(
+            "Use your own estimates to explore a possible return. "
+            "The time reduction is an assumption, not a measured result."
+        )
+        st.selectbox(
+            "Optional: fill the tool price from a catalog tool",
+            ["My own number"] + tools["tool_name"].tolist(),
+            key="roi_tool",
+            on_change=fill_roi_price,
+        )
+        roi_choice = st.session_state.get("roi_tool", "My own number")
+        if roi_choice != "My own number":
+            roi_row = tools[tools["tool_name"] == roi_choice].iloc[0]
+            if pd.isna(roi_row["monthly_cost"]):
+                st.caption(f"{roi_choice} is quote only, so enter your own price below.")
+            elif pd.notna(roi_row["free_price"]) and roi_row["free_price"] == 0:
+                st.caption(
+                    f"The slider uses the paid plan price for {roi_choice}. It also has a "
+                    "free starting option, so set the slider to 0 to test the free plan."
+                )
+        hours = st.slider("Hours per week spent on this task", 0, 40, 5)
+        value = st.slider("Value of your time, dollars per hour", 10, 100, 25)
+        reduction = st.slider("Assumed time reduction, percent", 0, 80, 30)
+        if "roi_price" not in st.session_state:
+            st.session_state["roi_price"] = 0
+        tool_price = st.slider("Tool price, dollars per month", 0, 500, key="roi_price")
+        monthly_time_value = hours * value * 4.33
+        estimated_savings = monthly_time_value * reduction / 100
+        estimated_net = estimated_savings - tool_price
+        roi1, roi2, roi3 = st.columns(3)
+        with roi1:
+            st.metric("Monthly time value", money(monthly_time_value))
+        with roi2:
+            st.metric("Estimated monthly savings", money(estimated_savings))
+        with roi3:
+            st.metric("Estimated net monthly benefit", money(estimated_net))
+        if tool_price > 0 and monthly_time_value > 0:
+            needed = tool_price / monthly_time_value * 100
+            if needed <= 100:
+                st.write(
+                    f"To cover a {md(f'${tool_price}')} monthly price, the tool would need "
+                    f"to cut about {needed:.0f} percent of the time spent on this task."
+                )
+            else:
+                st.write(
+                    "At these inputs the tool costs more than all of the time spent on "
+                    "this task is worth."
+                )
+        if estimated_net < 0:
+            st.warning("With these inputs the tool costs more than the time it saves.")
+        st.caption(
+            "This estimate uses 4.33 weeks in a month. It excludes setup time, taxes, fees, "
+            "and changes in demand. Use the provider price and your own measured results "
+            "before making a decision."
+        )
+
+    # Divider before the About sections
+    st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
+
+    # About sections, side by side in two blocks
+    about_website_col, about_creators_col = st.columns(2)
+    with about_website_col:
+        with st.container(key="about_website"):
+            st.header("About the Website")
+            st.write(
+                "VipervisionAI helps restaurants and coffee shops discover, compare, "
+                "and explore adoption steps for AI tools. It includes a searchable catalog, "
+                "a transparent rule based fit recommender, comparison, and an ROI estimate. "
+                "It is not an AI picker and does not claim to deploy tools."
+            )
+    with about_creators_col:
+        with st.container(key="about_creators"):
+            st.header("About the Creators")
+            st.write(
+                "Built by The Vipers, Team 62, for the AI for Small Business Hackathon: "
+                "Usman, Natalie, and Will, team lead."
+            )
+            if TEAM_CONTRIBUTIONS:
+                st.write("**Who did what**")
+                for member, contribution in TEAM_CONTRIBUTIONS.items():
+                    st.write(f"{member}: {contribution}")
+            if OUTSIDE_COACHING:
+                st.write("**Coaching and outside help we acknowledge**")
+                for line in OUTSIDE_COACHING:
+                    st.write(line)
             st.caption(
-                f"The slider uses the paid plan price for {roi_choice}. It also has a "
-                "free starting option, so set the slider to 0 to test the free plan."
+                "The Hackathon is run for the Smith Master Student Association at the "
+                "University of Maryland. As the Hackathon rules state, rights to submissions "
+                "belong to the University of Maryland."
             )
-    hours = st.slider("Hours per week spent on this task", 0, 40, 5)
-    value = st.slider("Value of your time, dollars per hour", 10, 100, 25)
-    reduction = st.slider("Assumed time reduction, percent", 0, 80, 30)
-    if "roi_price" not in st.session_state:
-        st.session_state["roi_price"] = 0
-    tool_price = st.slider("Tool price, dollars per month", 0, 500, key="roi_price")
-    monthly_time_value = hours * value * 4.33
-    estimated_savings = monthly_time_value * reduction / 100
-    estimated_net = estimated_savings - tool_price
-    roi1, roi2, roi3 = st.columns(3)
-    with roi1:
-        st.metric("Monthly time value", money(monthly_time_value))
-    with roi2:
-        st.metric("Estimated monthly savings", money(estimated_savings))
-    with roi3:
-        st.metric("Estimated net monthly benefit", money(estimated_net))
-    if tool_price > 0 and monthly_time_value > 0:
-        needed = tool_price / monthly_time_value * 100
-        if needed <= 100:
-            st.write(
-                f"To cover a {md(f'${tool_price}')} monthly price, the tool would need "
-                f"to cut about {needed:.0f} percent of the time spent on this task."
-            )
-        else:
-            st.write(
-                "At these inputs the tool costs more than all of the time spent on "
-                "this task is worth."
-            )
-    if estimated_net < 0:
-        st.warning("With these inputs the tool costs more than the time it saves.")
+
     st.caption(
-        "This estimate uses 4.33 weeks in a month. It excludes setup time, taxes, fees, "
-        "and changes in demand. Use the provider price and your own measured results "
-        "before making a decision."
+        f"VipervisionAI, by The Vipers. Prices checked {PRICE_CHECK_DATE}. "
+        "The prototype can continue improving after the video submission."
     )
 
 
@@ -1111,35 +1153,6 @@ def about_page():
                 "breakdown adds up to the score. They run for both business types, all "
                 "jobs, all budgets, and both comfort levels."
             )
-
-    # Divider before About the Creators
-    st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
-
-    # About the Creators
-    with st.container(key="about_creators"):
-        st.header("About the Creators")
-        st.write(
-            "Built by The Vipers, Team 62, for the AI for Small Business Hackathon: "
-            "Usman, Natalie, and Will, team lead."
-        )
-        if TEAM_CONTRIBUTIONS:
-            st.write("**Who did what**")
-            for member, contribution in TEAM_CONTRIBUTIONS.items():
-                st.write(f"{member}: {contribution}")
-        if OUTSIDE_COACHING:
-            st.write("**Coaching and outside help we acknowledge**")
-            for line in OUTSIDE_COACHING:
-                st.write(line)
-        st.caption(
-            "The Hackathon is run for the Smith Master Student Association at the "
-            "University of Maryland. As the Hackathon rules state, rights to submissions "
-            "belong to the University of Maryland."
-        )
-
-    st.caption(
-        f"VipervisionAI, by The Vipers. Prices checked {PRICE_CHECK_DATE}. "
-        "The prototype can continue improving after the video submission."
-    )
 
 
 # Catalog page: the full list of tools on its own page
