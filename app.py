@@ -603,9 +603,15 @@ def home_page():
 
     # Dark background around the whole explore section
     with st.container(key="explore_section"):
-        # Heading in its own box
+        # Heading with a small pill label, a big title, and a short intro line
         with st.container(key="explore_heading"):
-            st.subheader("What Vee can help you explore")
+            st.markdown(
+                '<div class="explore-pill">AI tools for small business</div>'
+                '<div class="explore-title">What <span class="vee-gradient">Vee</span> can help you explore</div>'
+                '<p class="explore-subtitle">Browse the AI tools in our catalog by the job you need done, '
+                'then compare them to find a good fit for your business.</p>',
+                unsafe_allow_html=True,
+            )
 
         card_columns = st.columns(3)
         for column, card in zip(card_columns, EXPLORE_CARDS):
