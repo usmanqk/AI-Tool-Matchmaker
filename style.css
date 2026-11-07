@@ -11,8 +11,7 @@
     --accent-color-yellow: #D9A441;
     --cream-color: #F5EFE0;
     --border-color-soft: #8FB7A0;
-    --brown-color: #5C4033;
-    --brown-color-dark: #3B2419;
+    --accent-color-purple: #8B5CF6;
 }
 
 /*Background color for the whole site*/
@@ -281,16 +280,19 @@ div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-vee_image"]) > div[d
     width: auto;
 }
 
-/*Dark brown background for the explore section*/
+/*Purple ombre background for the explore section*/
 div[class*="st-key-explore_section"] {
-    background-color: var(--brown-color-dark);
+    background:
+        linear-gradient(to bottom, rgba(139, 92, 246, 0.35), rgba(139, 92, 246, 0.05)),
+        var(--background-color);
+    border: 1px solid var(--accent-color-purple);
     border-radius: 16px;
     padding: 25px;
 }
 
-/*Brown box that holds the whole Find my tools section*/
+/*Box that holds the whole Find my tools section*/
 div[class*="st-key-find_tools_section"] {
-    background-color: var(--brown-color);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 16px;
     padding: 25px;
 }
@@ -309,7 +311,8 @@ div[class*="st-key-explore_heading"] {
     border-radius: 12px;
     padding: 10px 20px;
     text-align: center;
-    margin-bottom: 10px;
+    max-width: 1000px;
+    margin: 0 auto 10px auto;
 }
 
 div[class*="st-key-explore_heading"] h3 {
@@ -324,7 +327,7 @@ div[class*="st-key-explore_card"] {
         var(--header-color);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 16px;
-    padding: 24px;
+    padding: 18px;
     height: 100%;
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
@@ -380,7 +383,7 @@ div[class*="st-key-explore_card"]:hover {
 
 /*Card title and description*/
 .card-title {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--text-color-white);
     margin-bottom: 10px;
@@ -473,9 +476,12 @@ div[class*="st-key-explore_section"] [data-testid="stCaptionContainer"] {
     text-align: center;
 }
 
-/*Makes all three cards the same height*/
+/*Makes all three cards the same height and keeps them close together in the middle*/
 div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-explore_card"]) {
     align-items: stretch;
+    max-width: 1000px;
+    margin: 0 auto;
+    gap: 20px;
 }
 
 /*Fade in effect for the gold bubbles*/
