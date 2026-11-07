@@ -1,0 +1,391 @@
+/*Global color variables*/
+:root {
+    --background-color: #0D191F;
+    --navbar-color: #0A1410;
+    --header-color: #102A43;
+    --text-color-white: #FFFFFF;
+    --text-color-light: #E8F5E9;
+    --text-color-dark: #17231F;
+    --accent-color-neon-green: #39FF88;
+    --accent-color-blue: #49B8D0;
+    --accent-color-yellow: #D9A441;
+    --card-color-gray: #53635B;
+    --border-color-dark-green: #1F4D2E;
+    --cream-color: #F5EFE0;
+    --cream-color-dark: #E6D8BC;
+    --border-color: #39FF88;
+    --border-color-soft: #8FB7A0;
+    --brown-color: #5C4033;
+    --brown-color-dark: #3B2419;
+}
+
+/*Sets the background color of the whole website*/
+.stApp {
+    background-color: var(--background-color);
+}
+
+/*Keeps section titles from hiding under the nav bar when a nav link jumps to them*/
+.stApp h1,
+.stApp h2,
+.stApp h3,
+#top {
+    scroll-margin-top: 100px;
+}
+
+/*Helps to contain the main part/title of the website */
+.top-text {
+    border: 2px solid var(--accent-color-neon-green);
+    border-radius: 10px;
+    background-color: var(--header-color);
+    color: var(--text-color-white);
+    padding: 20px;
+    text-align: center;
+    max-width: 800px;
+    margin: 60px auto 40px auto;
+}
+
+/*VipervisionAI title with a wavy yellow line under the whole word*/
+[data-testid="stMarkdownContainer"] .top-text h1 {
+    color: var(--accent-color-neon-green);
+    font-size: 4rem;
+    text-decoration: underline wavy var(--accent-color-yellow);
+    text-decoration-thickness: 3px;
+    text-underline-offset: 14px;
+    padding-bottom: 20px;
+}
+
+/*Navigation Bar that is at the top of the website*/
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    z-index: 999999;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 40px;
+    background-color: var(--navbar-color);
+    border-bottom: 2px solid var(--accent-color-neon-green);
+}
+
+/*VipervisionAI name on the far left of the nav bar*/
+.nav-logo {
+    color: var(--accent-color-neon-green);
+    background-color: transparent;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/*Groups the links together on the right side of the nav bar*/
+.nav-links {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.navbar a {
+    color: var(--text-color-white);
+    text-decoration: none;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 6px;
+}
+
+.navbar a:hover {
+    background-color: var(--accent-color-neon-green);
+    color: var(--navbar-color);
+}
+
+/*Horizontal line between the header box and the questions*/
+[data-testid="stMarkdownContainer"] hr.section-divider {
+    border: none;
+    border-top: 2px solid var(--border-color-soft);
+    margin: 0 0 40px 0;
+}
+
+/*Cards that hold each question*/
+div[class*="st-key-question_card"] {
+    background-color: var(--cream-color);
+    border: 2px solid var(--accent-color-neon-green);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/*Dark text inside the cards*/
+div[class*="st-key-question_card"] p {
+    color: var(--text-color-dark);
+}
+
+/*Question titles: centered, bold, and underlined*/
+div[class*="st-key-question_card"] [data-testid="stMarkdownContainer"] p {
+    text-align: center;
+    font-size: 1.1rem;
+    text-decoration: underline;
+    text-underline-offset: 5px;
+    margin-bottom: 15px;
+}
+
+/*Dark dropdown boxes with a blue border*/
+div[class*="st-key-question_card"] div[data-baseweb="select"] > div {
+    background-color: var(--navbar-color);
+    border: 2px solid var(--accent-color-blue);
+    border-radius: 8px;
+}
+
+/*White text and arrow inside the dark dropdowns*/
+div[class*="st-key-question_card"] div[data-baseweb="select"] * {
+    color: var(--text-color-white);
+}
+
+/*Buttons across the site*/
+.stButton button,
+.stFormSubmitButton button,
+.stDownloadButton button,
+.stLinkButton a {
+    background-color: var(--accent-color-neon-green);
+    color: var(--navbar-color);
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    min-height: 48px;
+}
+
+.stButton button:hover,
+.stFormSubmitButton button:hover,
+.stDownloadButton button:hover,
+.stLinkButton a:hover {
+    background-color: var(--navbar-color);
+    color: var(--accent-color-neon-green);
+}
+
+/*Blue box with a green border around Vee's introduction*/
+div[class*="st-key-vee_intro"] {
+    background-color: var(--header-color);
+    border: 2px solid var(--accent-color-neon-green);
+    border-radius: 12px;
+    padding: 12px 20px;
+    height: fit-content;
+    align-self: flex-start;
+    max-width: 600px;
+    position: relative;
+    overflow: visible;
+}
+
+/*Speech bubble tail pointing left toward Vee (green outline)*/
+div[class*="st-key-vee_intro"]::before {
+    content: "";
+    position: absolute;
+    left: -22px;
+    bottom: 30px;
+    border-style: solid;
+    border-width: 12px 22px 12px 0;
+    border-color: transparent var(--accent-color-neon-green) transparent transparent;
+}
+
+/*Speech bubble tail fill so it matches the box color*/
+div[class*="st-key-vee_intro"]::after {
+    content: "";
+    position: absolute;
+    left: -18px;
+    bottom: 32px;
+    border-style: solid;
+    border-width: 10px 19px 10px 0;
+    border-color: transparent var(--header-color) transparent transparent;
+}
+
+/*White text inside Vee's box so it shows on the blue*/
+div[class*="st-key-vee_intro"] p,
+div[class*="st-key-vee_intro"] li {
+    color: var(--text-color-white);
+}
+
+/*Vee's "Hi, I am Vee!" chat bubble in gold*/
+div[class*="st-key-vee_intro"] [data-testid="stChatMessage"] {
+    background-color: var(--accent-color-yellow);
+    border-radius: 12px;
+    padding: 12px 16px;
+}
+
+/*Dark text inside the gold bubble so it stays readable*/
+div[class*="st-key-vee_intro"] [data-testid="stChatMessage"] p {
+    color: var(--text-color-dark);
+}
+
+/*Gold sections for "Answer five questions" and "How it works"*/
+div[class*="st-key-vee_intro"] div[class*="st-key-vee_gold"] {
+    background-color: var(--accent-color-yellow);
+    border-radius: 12px;
+    padding: 12px 16px;
+}
+
+/*Dark text inside the gold sections so it stays readable*/
+div[class*="st-key-vee_intro"] div[class*="st-key-vee_gold"] p,
+div[class*="st-key-vee_intro"] div[class*="st-key-vee_gold"] li {
+    color: var(--text-color-dark);
+}
+
+/*Start the five questions button inside Vee's box*/
+div[class*="st-key-vee_intro"] .stLinkButton a,
+div[class*="st-key-vee_intro"] .stLinkButton a p {
+    color: var(--text-color-dark);
+}
+
+div[class*="st-key-vee_intro"] .stLinkButton a {
+    border: 2px solid var(--text-color-white);
+}
+
+/*Hover: same as the other buttons, dark background with neon green text*/
+div[class*="st-key-vee_intro"] .stLinkButton a:hover {
+    background-color: var(--navbar-color);
+}
+
+div[class*="st-key-vee_intro"] .stLinkButton a:hover,
+div[class*="st-key-vee_intro"] .stLinkButton a:hover p {
+    color: var(--accent-color-neon-green);
+}
+
+/*Bright green border around the picture of Vee*/
+div[class*="st-key-vee_image"] img {
+    border: 5px solid var(--accent-color-neon-green);
+}
+
+/*Moves Vee down so her box reads like a speech bubble above her*/
+div[class*="st-key-vee_image"] {
+    margin-top: 170px;
+}
+
+/*Centers Vee's picture and the Hi, I am Vee box on the page,
+  with 30px of space between them*/
+div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-vee_image"]) {
+    gap: 30px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/*Fixed width for Vee's picture column*/
+div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-vee_image"]) > div[data-testid="stColumn"]:first-child {
+    flex: 0 0 280px;
+    width: 280px;
+}
+
+/*Vee's box column only as wide as the box (up to 600px)*/
+div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-vee_image"]) > div[data-testid="stColumn"]:last-child {
+    flex: 0 1 600px;
+    width: auto;
+}
+
+/*Brown background around the whole explore section*/
+div[class*="st-key-explore_section"] {
+    background-color: var(--brown-color-dark);
+    border-radius: 16px;
+    padding: 25px;
+}
+
+/*Brown box around the whole Find my tools section*/
+div[class*="st-key-find_tools_section"] {
+    background-color: var(--brown-color);
+    border-radius: 16px;
+    padding: 25px;
+}
+
+/*Light heading, intro text, and optional systems label in the Find my tools box*/
+div[class*="st-key-find_tools_section"] h2,
+div[class*="st-key-find_tools_section"] > [data-testid="stElementContainer"] p,
+div[class*="st-key-find_tools_section"] [data-testid="stTextInput"] label p {
+    color: var(--text-color-white);
+}
+
+/*"What Vee can help you explore" heading in its own box*/
+div[class*="st-key-explore_heading"] {
+    background-color: var(--header-color);
+    border: 2px solid var(--accent-color-neon-green);
+    border-radius: 12px;
+    padding: 10px 20px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+div[class*="st-key-explore_heading"] h3 {
+    color: var(--accent-color-neon-green);
+    text-align: center;
+}
+
+/*Dark blue boxes for the three explore cards*/
+div[class*="st-key-explore_card"] {
+    background-color: var(--header-color);
+    border: 3px solid var(--accent-color-neon-green);
+    border-radius: 12px;
+    padding: 20px;
+    height: 100%;
+}
+
+/*Light text inside the dark blue boxes so it stays readable*/
+div[class*="st-key-explore_card"] h4,
+div[class*="st-key-explore_card"] p,
+div[class*="st-key-explore_card"] [data-testid="stCaptionContainer"],
+div[class*="st-key-explore_card"] [data-testid="stMetricLabel"],
+div[class*="st-key-explore_card"] [data-testid="stMetricValue"] {
+    color: var(--text-color-white);
+}
+
+/*Card titles centered with a straight light line under them (80% of the box width)*/
+div[class*="st-key-explore_card"] [data-testid="stMarkdownContainer"] h4 {
+    text-align: center;
+    width: 80%;
+    margin: 0 auto 10px auto;
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--text-color-light);
+}
+
+/*Explore buttons: white outline*/
+div[class*="st-key-explore_card"] .stButton button {
+    border: 2px solid var(--text-color-white);
+}
+
+/*Explore buttons: dark text so it shows on the neon green*/
+div[class*="st-key-explore_card"] .stButton button p {
+    color: var(--navbar-color);
+}
+
+div[class*="st-key-explore_card"] .stButton button:hover p {
+    color: var(--accent-color-neon-green);
+}
+
+/*Keeps the three boxes the same height*/
+div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-explore_card"]) {
+    align-items: stretch;
+}
+
+/*Animation: gold blocks fade in*/
+@keyframes gold-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/*Each gold block fades in one after another*/
+div[class*="st-key-vee_intro"] [data-testid="stChatMessage"] {
+    animation: gold-fade-in 2s ease-out 0.2s both;
+}
+
+div[class*="st-key-vee_intro"] div[class*="st-key-vee_gold_answer"] {
+    animation: gold-fade-in 2s ease-out 2.2s both;
+}
+
+div[class*="st-key-vee_intro"] div[class*="st-key-vee_gold_how"] {
+    animation: gold-fade-in 2s ease-out 4.2s both;
+}
+
+/*Turns the animation off for visitors who set their device to reduce motion*/
+@media (prefers-reduced-motion: reduce) {
+    div[class*="st-key-vee_intro"] [data-testid="stChatMessage"],
+    div[class*="st-key-vee_intro"] div[class*="st-key-vee_gold"] {
+        animation: none;
+    }
+}
