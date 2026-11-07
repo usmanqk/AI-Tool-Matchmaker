@@ -540,9 +540,10 @@ div[class*="st-key-explore_card"] > div:has(.stButton) {
     margin-top: auto;
 }
 
-/*About the Website and About the Creators blocks with a green to blue fade*/
+/*About the Website, About the Creators, and Free help blocks with a green to blue fade*/
 div[class*="st-key-about_website"],
-div[class*="st-key-about_creators"] {
+div[class*="st-key-about_creators"],
+div[class*="st-key-about_free_help"] {
     background:
         linear-gradient(135deg, rgba(57, 255, 136, 0.30), rgba(73, 184, 208, 0.30)),
         var(--header-color);
@@ -557,13 +558,23 @@ div[class*="st-key-about_creators"] {
 div[class*="st-key-about_website"] h2,
 div[class*="st-key-about_website"] p,
 div[class*="st-key-about_creators"] h2,
-div[class*="st-key-about_creators"] p {
+div[class*="st-key-about_creators"] p,
+div[class*="st-key-about_free_help"] h2,
+div[class*="st-key-about_free_help"] p {
     color: var(--text-color-white);
 }
 
-/*Centers everything in the About blocks*/
+/*Keeps the About titles at the top so both line up*/
 div[class*="st-key-about_website"],
 div[class*="st-key-about_creators"],
+div[class*="st-key-about_free_help"] {
+    text-align: center;
+    justify-content: flex-start;
+}
+
+/*Centers the text in the About blocks*/
+div[class*="st-key-about_free_help"] h2,
+div[class*="st-key-about_free_help"] [data-testid="stMarkdownContainer"],
 div[class*="st-key-about_website"] h2,
 div[class*="st-key-about_creators"] h2,
 div[class*="st-key-about_website"] [data-testid="stMarkdownContainer"],
@@ -575,7 +586,8 @@ div[class*="st-key-about_creators"] [data-testid="stCaptionContainer"] {
 
 /*Tiny white line between each About title and its text*/
 div[class*="st-key-about_website"] [data-testid="stHeading"]::after,
-div[class*="st-key-about_creators"] [data-testid="stHeading"]::after {
+div[class*="st-key-about_creators"] [data-testid="stHeading"]::after,
+div[class*="st-key-about_free_help"] [data-testid="stHeading"]::after {
     content: "";
     display: block;
     width: 60px;
@@ -589,14 +601,28 @@ div[class*="st-key-about_creators"] [data-testid="stCaptionContainer"] {
     color: var(--text-color-light);
 }
 
-/*Makes both About blocks the same height*/
+/*Makes both About blocks the same height and keeps them to 60% of the page, centered*/
 div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-about_website"]) {
     align-items: stretch;
     gap: 24px;
+    max-width: 60%;
+    margin: 0 auto;
 }
 
 div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-about_website"]) > div[data-testid="stColumn"] div:has(div[class*="st-key-about_"]) {
     height: 100%;
+}
+
+/*Free help block on its own line, 60% of the page and centered*/
+div[class*="st-key-about_free_help"] {
+    max-width: 60%;
+    margin: 0 auto 24px auto;
+    height: auto;
+}
+
+/*Links in the Free help block*/
+div[class*="st-key-about_free_help"] a {
+    color: var(--accent-color-neon-green);
 }
 
 /*Fade in effect for the gold bubbles*/
