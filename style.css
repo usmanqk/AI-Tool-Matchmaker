@@ -561,6 +561,29 @@ div[class*="st-key-about_creators"] p {
     color: var(--text-color-white);
 }
 
+/*Centers everything in the About blocks*/
+div[class*="st-key-about_website"],
+div[class*="st-key-about_creators"],
+div[class*="st-key-about_website"] h2,
+div[class*="st-key-about_creators"] h2,
+div[class*="st-key-about_website"] [data-testid="stMarkdownContainer"],
+div[class*="st-key-about_creators"] [data-testid="stMarkdownContainer"],
+div[class*="st-key-about_creators"] [data-testid="stCaptionContainer"] {
+    text-align: center;
+    justify-content: center;
+}
+
+/*Tiny white line between each About title and its text*/
+div[class*="st-key-about_website"] [data-testid="stHeading"]::after,
+div[class*="st-key-about_creators"] [data-testid="stHeading"]::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 2px;
+    background-color: var(--text-color-white);
+    margin: 12px auto 0 auto;
+}
+
 /*Small print in the About blocks*/
 div[class*="st-key-about_creators"] [data-testid="stCaptionContainer"] {
     color: var(--text-color-light);
