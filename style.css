@@ -38,6 +38,40 @@
     margin: 60px auto 40px auto;
 }
 
+/*Lines up the pulse lines and the header box in one row*/
+.hero-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin: 60px auto 40px auto;
+}
+
+.hero-row .top-text {
+    flex: 0 1 800px;
+    margin: 0;
+}
+
+/*Glowing pulse lines on each side of the header box*/
+.pulse-wave {
+    flex: 1 1 0;
+    max-width: 300px;
+    min-width: 0;
+    height: auto;
+}
+
+/*The right pulse line is flipped so both point toward the box*/
+.pulse-wave-right {
+    transform: scaleX(-1);
+}
+
+/*Hides the pulse lines on small screens where there is no room*/
+@media (max-width: 900px) {
+    .pulse-wave {
+        display: none;
+    }
+}
+
 /*Big VipervisionAI title*/
 [data-testid="stMarkdownContainer"] .top-text h1 {
     color: var(--accent-color-neon-green);
