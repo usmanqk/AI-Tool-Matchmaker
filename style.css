@@ -259,6 +259,7 @@ div[class*="st-key-vee_image"] img {
 /*Pushes Vee down a bit so it looks like she is talking*/
 div[class*="st-key-vee_image"] {
     margin-top: 170px;
+    margin-bottom: 60px;
 }
 
 /*Centers Vee and her speech box with some space between them*/
@@ -318,43 +319,158 @@ div[class*="st-key-explore_heading"] h3 {
 
 /*The three explore cards*/
 div[class*="st-key-explore_card"] {
-    background-color: var(--header-color);
-    border: 3px solid var(--accent-color-neon-green);
-    border-radius: 12px;
-    padding: 20px;
+    background:
+        linear-gradient(to bottom, var(--card-glow), transparent 140px),
+        var(--header-color);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 24px;
     height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-/*Light text so it shows up on the dark blue cards*/
-div[class*="st-key-explore_card"] h4,
-div[class*="st-key-explore_card"] p,
-div[class*="st-key-explore_card"] [data-testid="stCaptionContainer"],
-div[class*="st-key-explore_card"] [data-testid="stMetricLabel"],
-div[class*="st-key-explore_card"] [data-testid="stMetricValue"] {
+/*Each card gets its own accent color*/
+div[class*="st-key-explore_card_customer"] {
+    --card-accent: #39FF88;
+    --card-glow: rgba(57, 255, 136, 0.18);
+}
+
+div[class*="st-key-explore_card_marketing"] {
+    --card-accent: #49B8D0;
+    --card-glow: rgba(73, 184, 208, 0.18);
+}
+
+div[class*="st-key-explore_card_bookings"] {
+    --card-accent: #D9A441;
+    --card-glow: rgba(217, 164, 65, 0.18);
+}
+
+/*Cards lift up and glow a little when you hover*/
+div[class*="st-key-explore_card"]:hover {
+    transform: translateY(-6px);
+    border-color: var(--card-accent);
+    box-shadow: 0 0 25px var(--card-glow);
+}
+
+/*Small label and badge at the top of each card*/
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.card-category {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-color-light);
+    opacity: 0.75;
+}
+
+.card-badge {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--text-color-light);
+}
+
+/*Card title and description*/
+.card-title {
+    font-size: 1.4rem;
+    font-weight: 700;
     color: var(--text-color-white);
+    margin-bottom: 10px;
 }
 
-/*Centers the card titles and puts a line under them*/
-div[class*="st-key-explore_card"] [data-testid="stMarkdownContainer"] h4 {
-    text-align: center;
-    width: 80%;
-    margin: 0 auto 10px auto;
-    padding-bottom: 10px;
-    border-bottom: 3px solid var(--text-color-light);
+.card-description {
+    color: var(--text-color-light);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    min-height: 3rem;
 }
 
-/*White outline on the explore buttons*/
+/*Tool name tags pulled from the catalog*/
+.card-label {
+    font-size: 0.75rem;
+    color: var(--text-color-light);
+    opacity: 0.7;
+    margin: 14px 0 6px 0;
+}
+
+.card-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.card-chip {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--card-accent);
+    color: var(--card-accent);
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.card-empty {
+    font-size: 0.8rem;
+    color: var(--text-color-light);
+    opacity: 0.7;
+}
+
+/*Card buttons use the card's accent color*/
 div[class*="st-key-explore_card"] .stButton button {
+    background-color: var(--card-accent);
     border: 2px solid var(--text-color-white);
 }
 
-/*Dark text on the explore buttons so you can read it*/
 div[class*="st-key-explore_card"] .stButton button p {
     color: var(--navbar-color);
 }
 
+div[class*="st-key-explore_card"] .stButton button:hover {
+    background-color: var(--navbar-color);
+}
+
 div[class*="st-key-explore_card"] .stButton button:hover p {
-    color: var(--accent-color-neon-green);
+    color: var(--card-accent);
+}
+
+/*Row of real catalog numbers at the bottom of each card*/
+.card-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    background-color: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+}
+
+.metric-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-color-light);
+    opacity: 0.7;
+}
+
+.metric-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-color-white);
+}
+
+/*Small note under the cards*/
+div[class*="st-key-explore_section"] [data-testid="stCaptionContainer"] {
+    color: var(--text-color-light);
+    text-align: center;
 }
 
 /*Makes all three cards the same height*/
