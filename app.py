@@ -497,6 +497,34 @@ EXPLORE_CARDS = [
     },
 ]
 
+# The three free help cards
+FREE_HELP_CARDS = [
+    {
+        "key": "sba",
+        "category": "Local support",
+        "title": "Find local SBA help",
+        "description": "Find Small Business Administration offices and advisors near you.",
+        "button": "Find local SBA help",
+        "url": "https://www.sba.gov/local-assistance",
+    },
+    {
+        "key": "score",
+        "category": "Mentoring",
+        "title": "SCORE business mentoring",
+        "description": "Get free advice from volunteer mentors with business experience.",
+        "button": "Visit SCORE",
+        "url": "https://www.score.org",
+    },
+    {
+        "key": "partners",
+        "category": "Partner network",
+        "title": "SBA resource partners",
+        "description": "Small Business Development Centers and other SBA partner programs.",
+        "button": "See SBA partners",
+        "url": "https://www.sba.gov/partners",
+    },
+]
+
 def show_explore_card(card):
     """One explore card: label, title, description, catalog tools, button, and real counts."""
     matches = tools[tools["challenge"].isin(card["jobs"])]
@@ -1025,15 +1053,28 @@ def home_page():
             "jobs, all budgets, and both comfort levels."
         )
 
-    # Free help beyond software, in its own block like the About sections
-    with st.container(key="about_free_help"):
-        st.header("Free help beyond software")
-        st.write(
-            "These free resources can help a small business owner beyond the tools "
-            "above. VipervisionAI does not run them and does not receive anything "
-            "from them."
-        )
-        show_free_help_links()
+    # Free help beyond software, laid out like the explore section
+    with st.container(key="explore_section_help"):
+        with st.container(key="explore_heading_help"):
+            st.markdown(
+                '<div class="explore-pill">Free for small business owners</div>'
+                '<div class="explore-title">Free help <span class="vee-gradient">beyond</span> software</div>'
+                '<p class="explore-subtitle">These free resources can help a small business owner beyond '
+                'the tools above. VipervisionAI does not run them and does not receive anything from them.</p>',
+                unsafe_allow_html=True,
+            )
+        help_columns = st.columns(3)
+        for column, card in zip(help_columns, FREE_HELP_CARDS):
+            with column:
+                with st.container(key=f"explore_card_{card['key']}"):
+                    st.markdown(
+                        f'<div class="card-top"><span class="card-category">{card["category"]}</span>'
+                        f'<span class="card-badge">Free</span></div>'
+                        f'<div class="card-title">{card["title"]}</div>'
+                        f'<p class="card-description">{card["description"]}</p>',
+                        unsafe_allow_html=True,
+                    )
+                    st.link_button(card["button"] + " \u2192", card["url"], use_container_width=True)
 
     # About sections, side by side in two blocks
     about_website_col, about_creators_col = st.columns(2)
