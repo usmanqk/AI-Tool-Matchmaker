@@ -1076,6 +1076,9 @@ def home_page():
                     )
                     st.link_button(card["button"] + " \u2192", card["url"], use_container_width=True)
 
+    # Divider between Free help and the About sections
+    st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
+
     # About sections, side by side in two blocks
     about_website_col, about_creators_col = st.columns(2)
     with about_website_col:
