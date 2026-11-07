@@ -316,11 +316,6 @@ def show_first_week_plan(tool, systems=""):
         "connect systems, or purchase tools for you."
     )
 
-def show_free_help_links():
-    st.markdown("[Find local SBA help](https://www.sba.gov/local-assistance)")
-    st.markdown("[SCORE business mentoring](https://www.score.org)")
-    st.markdown("[SBA resource partners](https://www.sba.gov/partners)")
-
 def build_starter_stack(pool, cap, comfort, first_job):
     """Top budget fit tool for up to three different jobs, same rules as the quiz.
     The job you picked comes first, then the other jobs in catalog order.
@@ -580,13 +575,20 @@ st.markdown("""
 
 # Home page: everything except the catalog
 def home_page():
-    # Header box
-    st.markdown("""
-<div class="top-text">
-    <h1>VipervisionAI</h1>
-    <p>Find the right AI tools for your small business.</p>
-</div>
-""", unsafe_allow_html=True)
+    # Header box with a glowing pulse line on each side
+    PULSE_LEFT = (
+        '<svg class="pulse-wave pulse-wave-left" viewBox="0 0 300 80" aria-hidden="true"><defs><filter id="wave-glow-left" x="-10%" y="-60%" width="120%" height="220%"><feGaussianBlur stdDeviation="3"></feGaussianBlur></filter></defs><path d="M 0 40 H 70 C 78 40 80 28 86 28 C 93 28 94 56 101 56 C 108 56 109 22 117 22 C 124 22 124 48 131 48 C 136 48 137 36 142 36 C 147 36 148 46 153 46 C 158 46 159 30 165 30 C 172 30 172 58 180 58 C 187 58 189 18 197 18 C 205 18 206 52 214 52 C 220 52 222 40 230 40 H 300" fill="none" stroke="#39FF88" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.6" filter="url(#wave-glow-left)"></path><path d="M 0 40 H 70 C 78 40 80 28 86 28 C 93 28 94 56 101 56 C 108 56 109 22 117 22 C 124 22 124 48 131 48 C 136 48 137 36 142 36 C 147 36 148 46 153 46 C 158 46 159 30 165 30 C 172 30 172 58 180 58 C 187 58 189 18 197 18 C 205 18 206 52 214 52 C 220 52 222 40 230 40 H 300" fill="none" stroke="#39FF88" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>'
+    )
+    PULSE_RIGHT = PULSE_LEFT.replace("pulse-wave-left", "pulse-wave-right").replace("wave-glow-left", "wave-glow-right")
+    st.markdown(
+        '<div class="hero-row">'
+        + PULSE_LEFT
+        + '<div class="top-text"><h1>VipervisionAI</h1>'
+        '<p>Find the right AI tools for your small business.</p></div>'
+        + PULSE_RIGHT
+        + '</div>',
+        unsafe_allow_html=True,
+    )
 
     # Division between header and the rest of the page
     st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
@@ -756,12 +758,6 @@ def home_page():
             show_starter_stack(
                 pool, result["budget_label"], result["comfort"], result["job"]
             )
-            st.subheader("Free help beyond software")
-            st.write(
-                "A local advisor can help you decide before you spend money. These "
-                "resources are free."
-            )
-            show_free_help_links()
         st.button("Clear my results", on_click=clear_results)
 
     # The ROI calculator only shows up after someone clicks Find my tools
