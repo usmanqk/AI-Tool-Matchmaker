@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 import requests
-from vee_chat import render_vee_chat
+from vee_chat import render_vee_chat, catalog_tool_commentary
 st.set_page_config(
     page_title="VipervisionAI | Find the right AI tool",
     page_icon="🔍",
@@ -892,6 +892,14 @@ def about_page():
 
     # Your original dropdowns, styled the same as the questions above
     with st.container(key="about_faq_more"):
+        # Single conversational entrypoint; no second dropdown-based Vee interface.
+        with st.expander("Ask Vee in chat"):
+            st.write(
+                "Chat with Vee on the homepage. Describe your business problem in your "
+                "own words; Vee will discuss it and show relevant catalog-based candidates."
+            )
+            st.markdown("[Go to Chat with Vee](./#chat-with-vee)")
+
         # Research and methodology
         with st.expander("Research and scoring method"):
             st.write(
@@ -1082,6 +1090,35 @@ def about_page():
             )
 
 
+
+
+@st.fragment
+def catalog_vee_comment(tool):
+    """One provider action and one opt-in Vee action in the same card.
+
+    A fragment reruns only this panel. One answer per tool is stored in session
+    state, so Streamlit redraws don't trigger extra OpenRouter requests.
+    """
+    name = str(tool["tool_name"])
+    key = "catalog_vee_comment_" + re.sub(r"[^a-z0-9]+", "_", name.lower())
+    provider_col, vee_col = st.columns(2, gap="small")
+    with provider_col:
+        st.link_button("Visit provider", str(tool["website"]), use_container_width=True)
+    with vee_col:
+        clicked = st.button("Ask Vee about this tool", key="ask_" + key,
+                            use_container_width=True)
+    if clicked and key not in st.session_state:
+        with st.spinner(f"Vee is reviewing {name}..."):
+            st.session_state[key] = catalog_tool_commentary(tool)
+    if key in st.session_state:
+        with st.container(border=True):
+            st.markdown("**Vee's take**")
+            st.markdown(st.session_state[key])
+            st.caption(
+                "Based on catalog research, not live product verification. "
+                "Check the provider before buying."
+            )
+
 # Catalog page: the full list of tools on its own page
 def catalog_page():
     # Catalog
@@ -1089,6 +1126,10 @@ def catalog_page():
     st.write(
         f"The catalog contains {len(tools)} tools. Prices were checked "
         f"{PRICE_CHECK_DATE}. Provider prices and terms can change."
+    )
+    search_text = st.text_input(
+        "Search the catalog",
+        placeholder="For example: schedule, reviews, Square",
     )
     catalog_col1, catalog_col2, catalog_col3 = st.columns([1, 1, 1])
     with catalog_col1:
@@ -1104,19 +1145,48 @@ def catalog_page():
         shown = business_tools(shown, business_filter)
     if free_only:
         shown = shown[shown["free_price"] == 0]
+    if search_text.strip():
+        words = search_text.strip().lower()
+        haystack = (
+            shown["tool_name"].astype(str)
+            + " "
+            + shown["challenge"].astype(str)
+            + " "
+            + shown["pros"].astype(str)
+            + " "
+            + shown["cons"].astype(str)
+            + " "
+            + shown["price_note"].astype(str)
+        ).str.lower()
+        shown = shown[haystack.str.contains(words, regex=False)]
     st.caption(f"Showing {len(shown)} catalog tools.")
+    st.markdown("""<style>
+    [class*="st-key-vv_catalog_card_"] {
+        max-width: 920px;
+        margin: 0 auto 18px auto;
+        background: linear-gradient(145deg, rgba(29, 78, 88, .66), rgba(10, 27, 35, .92));
+        border: 1px solid rgba(49, 155, 159, .48);
+        border-radius: 16px;
+    }
+    [class*="st-key-vv_catalog_card_"] [data-testid="stMarkdownContainer"] p {
+        line-height: 1.55;
+    }
+    </style>""", unsafe_allow_html=True)
     if shown.empty:
-        st.info("No catalog tools match those filters. Clear a filter to see more.")
+        st.info("No catalog tools match those filters. Clear the search or a filter to see more.")
     for _, tool in shown.iterrows():
-        with st.container(border=True):
+        slug = re.sub(r"[^a-z0-9]+", "_", str(tool["tool_name"]).lower()).strip("_")
+        with st.container(border=True, key=f"vv_catalog_card_{slug}"):
             st.markdown(f"#### {tool['tool_name']}")
-            st.write(f"**Job:** {tool['challenge']}  |  **Business:** {tool['business_type']}")
+            st.caption(f"{tool['challenge']} \u00b7 {tool['business_type']}")
             st.write(f"**Price:** {md(tool['price_note'])}  |  **Setup:** {tool['effort']}")
             st.write(f"**What it does well:** {md(tool['pros'])}")
             st.write(f"**What to check:** {md(tool['cons'])}")
-            show_tool_link(tool["website"])
-            st.caption(f"Price checked {date_label(tool['checked_date'])}.")
-            st.markdown(f"[Source details](https://{tool['source']})")
+            catalog_vee_comment(tool)
+            st.caption(
+                f"Price checked {date_label(tool['checked_date'])} \u00b7 "
+                f"Source: {tool['source']} \u00b7 Prices and features may change."
+            )
 
     # Comparison
     st.header("Compare up to three tools")
