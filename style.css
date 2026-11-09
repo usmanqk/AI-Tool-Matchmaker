@@ -730,7 +730,19 @@ div[class*="st-key-catalog_card"] {
     border: 1px solid var(--accent-color-blue);
     border-radius: 16px;
     padding: 22px;
-    margin-bottom: 16px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/*Three cards per row, each row the same height with space between rows*/
+div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-catalog_card"]) {
+    align-items: stretch;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-catalog_card"]) > div[data-testid="stColumn"] div:has(div[class*="st-key-catalog_card"]) {
+    height: 100%;
 }
 
 /*White text and titles inside the catalog cards*/
@@ -747,6 +759,16 @@ div[class*="st-key-catalog_card"] a {
 /*Small print inside the catalog cards*/
 div[class*="st-key-catalog_card"] [data-testid="stCaptionContainer"] {
     color: var(--text-color-light);
+}
+
+/*Yellow ombre box around the Chat with Vee area*/
+div[class*="st-key-vee_chat_box"] {
+    background:
+        linear-gradient(to bottom, rgba(217, 164, 65, 0.35), rgba(217, 164, 65, 0.05)),
+        var(--background-color);
+    border: 1px solid var(--accent-color-yellow);
+    border-radius: 16px;
+    padding: 25px;
 }
 
 /*Fade in effect for the gold bubbles*/
